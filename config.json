@@ -1,0 +1,85 @@
+{
+    "tituloPagina": "Pide en Monaco a domicilio | Restaurante | Ordena online",
+    "nombreRestaurante": "Monaco Food Service",
+    "logo": "img/icono_tienda.png",
+    "colores": {
+        "--bg-body": "linear-gradient(135deg, #222, #222)",
+        "--header": "linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('img/fondoheader.png')",
+        "--accent": "#fae500",
+        "--bg-skeleton": "linear-gradient(135deg, #f9f9f9, #e9e9e9)",
+        "--bg-start": "#f0f0f0",
+        "--bg-end": "#d6d6d6",
+        "--card-bg": "#fff"
+    },
+    "categorias": [
+        {
+            "id": "perros",
+            "emoji": "🌭",
+            "nombre": "Perros"
+        },
+        {
+            "id": "hamburguesas",
+            "emoji": "🍔",
+            "nombre": "Hamburguesas"
+        },
+        {
+            "id": "arepas",
+            "emoji": "🫓",
+            "nombre": "Arepas"
+        },
+        {
+            "id": "desgranados",
+            "emoji": "🌽",
+            "nombre": "Desgranados"
+        },
+        {
+            "id": "patacones",
+            "emoji": "🍌",
+            "nombre": "Patacones"
+        },
+        {
+            "id": "picadas",
+            "emoji": "🍖",
+            "nombre": "Picadas"
+        },
+        {
+            "id": "salchipapas",
+            "emoji": "🍟",
+            "nombre": "Salchipapas"
+        },
+        {
+            "id": "mas",
+            "emoji": "➕",
+            "nombre": "Más"
+        },
+        {
+            "id": "bebidas",
+            "emoji": "🥤",
+            "nombre": "Bebidas"
+        }
+    ],
+    "redes": {
+        "whatsapp": "https://wa.me/573117063583",
+        "instagram": "https://www.instagram.com/",
+        "facebook": "https://www.facebook.com/"
+    },
+    "numeroWhatsAppMensajes": "573117063583",
+    "footerQR": "img/QR_tienda.png",
+    "sede": {
+        "nombre": "Monaco Food Service - Cartagena, Bolivar.",
+        "direccion": "La Consolata - Calle principal",
+        "telefono": "(+57) 311 706 3583"
+    },
+    "coordenadasSede": [
+        10.3772443,
+        -75.4808967
+    ],
+    "footerLogo": "img/logo.png",
+    "crearTienda": "https://wa.me/573024345404?text=Quiero%20crear%20mi%20tienda",
+    "apiUrls": {
+        "productos": "https://script.google.com/macros/s/AKfycbwmVsrJE3dh2Ewc-K37z5K6vxboDyI1UAZ21jAjxg9LJrQ4QoRIOgjwXxE_yx9jwX6QUQ/exec",
+        "horario": "https://script.google.com/macros/s/AKfycbxE7igSg_E0ywBrocdbb9E6-69zrYakl__6g1RBrHigKLekW5qlC07zD8E4JrxG9blZ/exec",
+        "envioBaseDatos": "https://script.google.com/macros/s/AKfycbxYOw2iAbWX8vHreEZQowy40BCQR8hNry9BtQc3LDonJt_PKd5e01h6Q0_cA0r4UevL/exec",
+        "cocina": "https://script.google.com/macros/s/AKfycbxYOw2iAbWX8vHreEZQowy40BCQR8hNry9BtQc3LDonJt_PKd5e01h6Q0_cA0r4UevL/exec"
+    }
+}
