@@ -99,15 +99,22 @@ if (tipoEntrega.toLowerCase().includes("recoger")) {
 
   
 
-// ✅ Leer número de WhatsApp para mensajes desde config.json
+// Abre la pestaña primero (autorizada por el clic)
+const win = window.open("", "_blank");
+
+// Luego hace el fetch
 fetch("config.json")
   .then((response) => response.json())
   .then((config) => {
     const numeroWhatsApp = config.numeroWhatsAppMensajes;
     const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(msg)}`;
-    window.open(url, "_blank");
+    win.location.href = url; // redirige
   })
-  .catch((error) => console.error("Error al cargar config.json:", error));
+  .catch((error) => {
+    console.error("Error al cargar config.json:", error);
+    win.close(); // cierra la ventana si falló
+  });
+
 
 
 
@@ -209,4 +216,5 @@ function mostrarModalFactura() {
     window.location.href = "index.html";
   });
 }
+
 
