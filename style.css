@@ -9,7 +9,6 @@ body {
 /*//////////////////////////////*/
 
 
-
 * {
     margin: 0;
     padding: 0;
@@ -1026,6 +1025,26 @@ select {
     min-width: 30px;
     text-align: center;
 }
+
+
+.quantity-display {
+  width: 50px;
+  text-align: center;
+  font-size: 1.2rem;
+  border: none;
+  background: transparent;
+  color: #fff; /* o el color que uses */
+  outline: none;
+  /* Quitar flechas / líneas laterales */
+  -moz-appearance: textfield; /* Firefox */
+}
+
+.quantity-display::-webkit-outer-spin-button,
+.quantity-display::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0; /* Chrome, Safari, Edge */
+}
+
 
 .add-to-cart-modal-btn {
     width: 100%;

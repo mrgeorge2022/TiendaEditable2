@@ -170,7 +170,14 @@
         <div class="quantity-section">
           <div class="quantity-control">
             <button class="quantity-btn-modal" onclick="decreaseQuantity()" id="decrease-btn">-</button>
-            <span class="quantity-display" id="modal-quantity">1</span>
+<input
+  type="number"
+  class="quantity-display"
+  id="modal-quantity"
+  min="1"
+  value="1"
+  oninput="handleManualQuantityInput(event)"
+>
             <button class="quantity-btn-modal" onclick="increaseQuantity()">+</button>
           </div>
         </div>
@@ -332,12 +339,12 @@
       <a href="#" target="_blank" class="social-link">
         <img src="iconos/redes/whatsapp.png" alt="WhatsApp">
       </a>
-      <a href="#" target="_blank" class="social-link">
+     <!-- <a href="#" target="_blank" class="social-link">
         <img src="iconos/redes/instagram.png" alt="Instagram">
       </a>
       <a href="#" target="_blank" class="social-link">
         <img src="iconos/redes/facebook.png" alt="Facebook">
-      </a>
+      </a>-->
     </div>
 
     <div class="footer-qr">

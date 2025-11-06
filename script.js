@@ -494,7 +494,17 @@ function closeProductModal() {
   currentProduct = null;
   modalQuantity = 1;
 
-    // ✅ Restaurar scroll general del body
+  // 🔹 Reiniciar visualmente el número en el input o span
+  const el = document.getElementById("modal-quantity");
+  if (el) {
+    if (el.tagName === "INPUT") el.value = modalQuantity;
+    else el.textContent = modalQuantity;
+  }
+
+  updateQuantityButtons();
+  updateAddToCartButton();
+
+  // ✅ Restaurar scroll general del body
   document.body.style.overflow = "";
 }
 
@@ -505,7 +515,9 @@ function closeProductModal() {
  */
 function increaseQuantity() {
   modalQuantity++;
-  document.getElementById("modal-quantity").textContent = modalQuantity;
+  const el = document.getElementById("modal-quantity");
+  if (el.tagName === "INPUT") el.value = modalQuantity;
+  else el.textContent = modalQuantity;
   updateQuantityButtons();
   updateAddToCartButton(); // 🔥 actualiza el precio del botón
 }
@@ -518,11 +530,31 @@ function increaseQuantity() {
 function decreaseQuantity() {
   if (modalQuantity > 1) {
     modalQuantity--;
-    document.getElementById("modal-quantity").textContent = modalQuantity;
+    const el = document.getElementById("modal-quantity");
+    if (el.tagName === "INPUT") el.value = modalQuantity;
+    else el.textContent = modalQuantity;
     updateQuantityButtons();
     updateAddToCartButton(); // 🔥 actualiza el precio del botón
   }
 }
+
+/**
+ * handleManualQuantityInput
+ * -------------------------
+ * Permite ingresar cantidad manualmente en el input.
+ */
+function handleManualQuantityInput(e) {
+  let value = parseInt(e.target.value);
+  if (isNaN(value) || value < 1) value = 1;
+
+  modalQuantity = value;
+  e.target.value = modalQuantity;
+
+  updateQuantityButtons();
+  updateAddToCartButton(); // actualiza el precio dinámicamente
+}
+
+
 
 /**
  * updateQuantityButtons
@@ -826,10 +858,10 @@ if (cart.length === 0) {
         (p) => p.id === item.originalId || p.id === item.id
       );
 
-      const imageHTML = product?.imagen
-        ? `<img src="${product.imagen}" alt="${item.name}" class="cart-item-image" 
-             onerror="this.style.display='none';">`
-        : `<div class="cart-item-placeholder">🍽️</div>`;
+const imageHTML = product?.imagen
+  ? `<img src="${product.imagen}" alt="${item.name}" class="cart-item-image" 
+       onerror="this.style.display='none'; this.parentElement.innerHTML='${getCategoryEmoji(product.categoria)}';">`
+  : `<div class="cart-item-placeholder">${getCategoryEmoji(product?.categoria || "")}</div>`;
 
       return `
         <div class="cart-item" data-index="${index}">
