@@ -99,21 +99,37 @@ if (tipoEntrega.toLowerCase().includes("recoger")) {
 
   
 
-// Abre la pestaña primero (autorizada por el clic)
-const win = window.open("", "_blank");
 
-// Luego hace el fetch
-fetch("config.json")
-  .then((response) => response.json())
-  .then((config) => {
-    const numeroWhatsApp = config.numeroWhatsAppMensajes;
-    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(msg)}`;
-    win.location.href = url; // redirige
-  })
-  .catch((error) => {
-    console.error("Error al cargar config.json:", error);
-    win.close(); // cierra la ventana si falló
-  });
+// ✅ Detectar si el navegador es Safari (incluye iPhone/iPad)
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+if (isSafari) {
+  // 🧭 Safari requiere abrir la ventana antes del fetch
+  const win = window.open("", "_blank");
+
+  fetch("config.json")
+    .then((response) => response.json())
+    .then((config) => {
+      const numeroWhatsApp = config.numeroWhatsAppMensajes;
+      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(msg)}`;
+      win.location.href = url; // ✅ redirige sin bloqueo
+    })
+    .catch((error) => {
+      console.error("Error al cargar config.json:", error);
+      win.close(); // ❌ cerrar si algo falla
+    });
+} else {
+  // 🌎 Otros navegadores permiten abrir después del fetch
+  fetch("config.json")
+    .then((response) => response.json())
+    .then((config) => {
+      const numeroWhatsApp = config.numeroWhatsAppMensajes;
+      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(msg)}`;
+      window.open(url, "_blank"); // ✅ clásico
+    })
+    .catch((error) => console.error("Error al cargar config.json:", error));
+}
+
 
 
 
@@ -216,5 +232,6 @@ function mostrarModalFactura() {
     window.location.href = "index.html";
   });
 }
+
 
 
