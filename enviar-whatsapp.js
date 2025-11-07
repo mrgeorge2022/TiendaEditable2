@@ -44,9 +44,9 @@ function enviarPedidoWhatsApp(pedido) {
   }
 
   // ✅ Agregar número de mesa si es tipo "Mesa"
-if (tipoEntrega === "Mesa") {
-msg += `*MESA:* ${pedido.cliente.mesa || "Sin número de mesa"}\n\n`;
-}
+  if (tipoEntrega === "Mesa") {
+    msg += `*MESA:* ${pedido.cliente.mesa || "Sin número de mesa"}\n\n`;
+  }
 
   // 🛒 PRODUCTOS
   msg += `*PRODUCTOS SELECCIONADOS:*\n\n`;
@@ -64,11 +64,11 @@ msg += `*MESA:* ${pedido.cliente.mesa || "Sin número de mesa"}\n\n`;
   });
 
   // 💵 TOTALES
-if (tipoEntrega === "Domicilio") {
-  msg += `\n*TOTAL PRODUCTOS:* ${formatoPesos(subtotal)}\n`;
-  if (costoDomicilio)
-    msg += `*COSTO DE DOMICILIO:* ${formatoPesos(costoDomicilio)}\n\n`;
-}
+  if (tipoEntrega === "Domicilio") {
+    msg += `\n*TOTAL PRODUCTOS:* ${formatoPesos(subtotal)}\n`;
+    if (costoDomicilio)
+      msg += `*COSTO DE DOMICILIO:* ${formatoPesos(costoDomicilio)}\n\n`;
+  }
 
   msg += `\n*TOTAL A PAGAR:* ${formatoPesos(total)}\n`;
   msg += `*MÉTODO DE PAGO:* ${metodoPago}\n\n`;
@@ -76,50 +76,54 @@ if (tipoEntrega === "Domicilio") {
   msg += `*PROPINA VOLUNTARIA (10%):* ${formatoPesos(propina)}\n`;
   msg += `*TOTAL CON PROPINA:* ${formatoPesos(totalConPropina)}\n\n`;
 
-// 📝 Observaciones
-msg += `*OBSERVACIONES:*\n${observaciones || "____"}\n\n`;
+  // 📝 Observaciones
+  msg += `*OBSERVACIONES:*\n_${observaciones || ""}_\n\n`;
 
-// 📍 Ubicación del cliente solo si hay
-if (ubicacion) {
-  msg += `*Ubicación en Google Maps:*\n${ubicacion}\n\n`;
-}
+  // 📍 Ubicación del cliente solo si hay
+  if (ubicacion) {
+    msg += `*Ubicación en Google Maps:*\n${ubicacion}\n\n`;
+  }
 
+  // 📍 Ubicación de la tienda solo si es recoger en tienda
+  if (tipoEntrega.toLowerCase().includes("recoger")) {
+    msg += `*Ubicación de la tienda:*\nhttps://goo.su/X4C1\n\n`;
+  }
 
-// 📍 Ubicación de la tienda solo si es recoger en tienda
-if (tipoEntrega.toLowerCase().includes("recoger")) {
-  msg += `*Ubicación de la tienda:*\nhttps://goo.su/X4C1\n\n`;
-}
+  msg += `\n\n\n\n*Envía tu pedido aqui --------->*`;
 
+  // Abre la pestaña primero (autorizada por el clic)
+  const win = window.open("", "_blank");
 
-  msg += `*Envía tu pedido aqui --------->*`;
+  // Luego hace el fetch
+  fetch("config.json")
+    .then((response) => response.json())
+    .then((config) => {
+      const numeroWhatsApp = config.numeroWhatsAppMensajes;
+      const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(
+        msg
+      )}`;
+      win.location.href = url; // redirige
+    })
+    .catch((error) => {
+      console.error("Error al cargar config.json:", error);
+      win.close(); // cierra la ventana si falló
+    });
 
-
-
-
-
-  
-// Abre la pestaña primero (autorizada por el clic)
-const win = window.open("", "_blank");
-
-// Luego hace el fetch
-fetch("config.json")
-  .then((response) => response.json())
-  .then((config) => {
-    const numeroWhatsApp = config.numeroWhatsAppMensajes;
-    const url = `https://wa.me/${numeroWhatsApp}?text=${encodeURIComponent(msg)}`;
-    win.location.href = url; // redirige
-  })
-  .catch((error) => {
-    console.error("Error al cargar config.json:", error);
-    win.close(); // cierra la ventana si falló
-  });
-
-
-
-
-
-// ✅ Guardar pedido
+  // ✅ Guardar pedido
   localStorage.setItem("lastPedido", JSON.stringify(pedido));
+  // 🧹 Vaciar carrito automáticamente (sin error si funciones no existen)
+
+  try {
+    // Elimina carrito del almacenamiento local
+    localStorage.removeItem("cart");
+
+    // Si existen las funciones y variables del carrito, ejecútalas
+    if (typeof cart !== "undefined") cart = [];
+    if (typeof updateCartDisplay === "function") updateCartDisplay();
+    if (typeof renderCartItems === "function") renderCartItems();
+  } catch (e) {
+    // Silencioso: sin mensajes en consola
+  }
 
   // ✅ Mostrar modal
   mostrarModalFactura();
@@ -215,4 +219,3 @@ function mostrarModalFactura() {
     window.location.href = "index.html";
   });
 }
-
