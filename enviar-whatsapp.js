@@ -91,6 +91,11 @@ function enviarPedidoWhatsApp(pedido) {
 
   msg += `\n\n\n\n*Envía tu pedido aqui --------->*`;
 
+  // ==========================================================
+  // 🚫 ENVÍO A WHATSAPP DESACTIVADO TEMPORALMENTE
+  // ==========================================================
+
+  /*
   // Abre la pestaña primero (autorizada por el clic)
   const win = window.open("", "_blank");
 
@@ -108,6 +113,11 @@ function enviarPedidoWhatsApp(pedido) {
       console.error("Error al cargar config.json:", error);
       win.close(); // cierra la ventana si falló
     });
+  */
+
+  // ==========================================================
+  // Fin del bloque de envío a WhatsApp
+  // ==========================================================
 
   // ✅ Guardar pedido
   localStorage.setItem("lastPedido", JSON.stringify(pedido));
@@ -219,3 +229,4 @@ function mostrarModalFactura() {
     window.location.href = "index.html";
   });
 }
+
