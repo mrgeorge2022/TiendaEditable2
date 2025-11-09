@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel de Pedidos</title>
+    <link rel="icon" type="image/png" href="../img/icono_tienda.png">
+  <style>
+    body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f6fa;
+      margin: 0;
+      padding: 1rem;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      color: #111;
+      margin-bottom: 0.5rem;
+    }
+
+    .volver-admin {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.volver-admin button {    
+  background: #007bff;  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: all 0.25s ease;
+}
+
+.volver-admin button:hover {
+  background: linear-gradient(135deg, #0056b3, #004080);
+  transform: translateY(-2px);
+}
+
+
+    .estado {
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+      padding: 6px 12px;
+      background: #fff;
+      border-radius: 8px;
+      display: inline-block;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    .dashboard {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+
+    .dash-card {
+      background: #fff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      text-align: center;
+      min-width: 120px;
+    }
+    .dash-card h3 { margin: 0; font-size: 0.9rem; color: #007bff; }
+    .dash-card p { margin: 4px 0 0; font-weight: bold; font-size: 1rem; }
+
+    .filtros {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 20px;
+      background: #fff;
+      padding: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .filtros input, .filtros button {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 0.9rem;
+    }
+
+    .filtros button {
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .filtros button:hover { background: #0056b3; }
+
+    /* ==== MES === */
+    .mes-header {
+      cursor: pointer;
+      background:#e3e3e3;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .mes-header span {
+      font-size: 0.85rem;
+      color: #555;
+    }
+
+    .pedidos-mes { margin-top: 5px; }
+
+    .pedido {
+      background: #fff;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+   .pedido-header {
+  padding: 12px 16px;
+  background: #ffffff; /* gris claro elegante */
+  color: #222;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  font-weight: 600;
+  flex-wrap: wrap;
+  border-bottom: 1px solid #ddd;
+  border-radius: 8px 8px 0 0;
+  transition: background 0.2s ease, color 0.2s ease;
+  font-size: 14px;
+}
+
+.pedido-header:hover {
+  background: #e3e6eb; /* un poco más oscuro al pasar el mouse */
+  color: #000;
+}
+
+.pedido-header.new { 
+  background: #eaf4ff; /* tono sutil azul para nuevos */
+  border-bottom: 1px solid #cfe3ff;
+}
+
+.pedido-header div { 
+  display: flex; 
+  flex-direction: column; 
+  line-height: 1.3; 
+}
+
+/* Detalles del pedido */
+.pedido-detalle { 
+  display: none; 
+  padding: 14px 16px; 
+  background: #fff; 
+  border-top: 1px solid #eee; 
+  color: #222; 
+}
+.pedido.activo .pedido-detalle { display: block; }
+
+/* Lista de productos */
+.productos { 
+  background: #f9f9f9; 
+  padding: 8px 10px; 
+  border-radius: 6px; 
+  font-family: monospace; 
+  white-space: pre-wrap; 
+  font-size: 0.85rem; 
+  margin-top: 6px; 
+  border: 1px solid #eee;
+}
+
+/* Botón de factura */
+.boton-factura { 
+  margin-top: 10px; 
+  background: #007bff; 
+  color: white; 
+  border: none; 
+  padding: 8px 14px; 
+  border-radius: 6px; 
+  cursor: pointer; 
+  font-size: 0.9rem; 
+  transition: background 0.25s ease;
+}
+.boton-factura:hover { 
+  background: #0056b3;
+}
+
+
+    .cargando { text-align: center; color: #666; font-size: 1rem; padding: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Panel de Pedidos</h1>
+
+  <div class="volver-admin">
+  <button onclick="window.location.href='admin.html'">⬅️ Admin</button>
+
+
+  <div class="estado loading">Conectando...</div>
+
+  </div>
+
+  <div class="dashboard">
+    <div class="dash-card"><h3>📄 Pedidos</h3><p id="totalPedidos">—</p></div>
+    <div class="dash-card"><h3>💵 Total</h3><p id="totalVentas">—</p></div>
+    <div class="dash-card"><h3>💰 Promedio</h3><p id="promedioPedido">—</p></div>
+  </div>
+
+  <div class="filtros">
+    <input type="text" id="buscar" placeholder="Buscar por nombre o factura...">
+    <input type="date" id="fechaFiltro">
+    <button id="filtrarBtn">🔍 Buscar</button>
+    <button id="recargarBtn">🔃 Recargar</button>
+  </div>
+
+  <div id="contenedorPedidos">
+    <div class="cargando">Cargando pedidos...</div>
+  </div>
+
+  <audio id="alertaAudio" src="https://assets.mixkit.co/active_storage/sfx/2567/2567-preview.mp3"></audio>
+
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxYOw2iAbWX8vHreEZQowy40BCQR8hNry9BtQc3LDonJt_PKd5e01h6Q0_cA0r4UevL/exec";
+    const contenedor = document.getElementById("contenedorPedidos");
+    const estado = document.querySelector(".estado");
+    const audio = document.getElementById("alertaAudio");
+
+    let pedidosGlobal = [];
+    let ultimasFacturas = new Set();
+    let horaConexion = null;
+    let intervaloDuracion = null;
+
+    const formatoCOP = valor => {
+      const n = Number(valor) || 0;
+      return n.toLocaleString("es-CO", { style: "currency", currency: "COP", minimumFractionDigits: 0 });
+    };
+
+    async function cargarPedidos(auto = false) {
+      estado.className = "estado loading";
+      estado.textContent = "Actualizando...";
+
+      if (!auto) {
+  recargarBtn.disabled = true;
+  recargarBtn.textContent = "⏳ Actualizando...";
+}
+
+
+      try {
+        const res = await fetch(API_URL + "?t=" + Date.now());
+        const data = await res.json();
+
+        if (!horaConexion) {
+          horaConexion = new Date();
+          iniciarRelojConexion();
+        }
+
+        const nuevasFacturas = data.map(p => p.numeroFactura);
+        const nuevos = nuevasFacturas.filter(f => !ultimasFacturas.has(f));
+
+        if (ultimasFacturas.size > 0 && nuevos.length > 0) {
+          audio.play();
+          mostrarAvisoNuevoPedido();
+        }
+
+        ultimasFacturas = new Set(nuevasFacturas);
+        pedidosGlobal = data;
+        mostrarPedidos(data, nuevos);
+        actualizarDashboard(data);
+
+        estado.className = "estado ok";
+        actualizarEstadoConTiempo();
+      } catch (error) {
+        console.error("Error al cargar pedidos:", error);
+        contenedor.innerHTML = "<p class='cargando'>Error al cargar pedidos.</p>";
+        estado.className = "estado error";
+        estado.textContent = "Error de conexión";
+      }
+
+      finally {
+  if (!auto) {
+    recargarBtn.disabled = false;
+    recargarBtn.textContent = "🔃 Recargar";
+  }
+}
+
+    }
+
+    function mostrarPedidos(pedidos, nuevasFacturas = []) {
+      if (!pedidos || pedidos.length === 0) {
+        contenedor.innerHTML = "<p class='cargando'>No hay pedidos registrados.</p>";
+        return;
+      }
+
+      const mesesNombres = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+      const pedidosPorMes = {};
+
+      pedidos.forEach(p => {
+        if (!p.fecha) return;
+        const partes = p.fecha.split("/");
+        if (partes.length !== 3) return;
+        const mes = partes[1].padStart(2,"0");
+        if (!pedidosPorMes[mes]) pedidosPorMes[mes] = [];
+        pedidosPorMes[mes].push(p);
+      });
+
+      contenedor.innerHTML = "";
+
+      Object.keys(pedidosPorMes).sort((a,b)=>b-a).forEach(mes => {
+        const headerMes = document.createElement("div");
+        headerMes.className = "mes-header";
+        headerMes.innerHTML = `<span>${mesesNombres[Number(mes)-1]}</span><span>▼</span>`;
+        contenedor.appendChild(headerMes);
+
+        const bloqueMes = document.createElement("div");
+        bloqueMes.className = "pedidos-mes";
+        pedidosPorMes[mes].slice().reverse().forEach(p => {
+          const div = document.createElement("div");
+          div.className = "pedido";
+          div.innerHTML = `
+            <div class="pedido-header">
+              <div><strong>${p.numeroFactura || "—"}</strong><small>${p.nombre || "Cliente sin nombre"}</small></div>
+              <div><small>${p.fecha || "—"} ${p.hora || ""}</small></div>
+            </div>
+            <div class="pedido-detalle">
+              <p><strong>Tipo Entrega:</strong> ${p.tipoEntrega || "—"}</p>
+              <p><strong>Teléfono:</strong> ${p.telefono ?? "0"}</p>
+              ${p.mesa ? `<p><strong>Mesa:</strong> ${p.mesa}</p>` : ""}
+              ${p.direccion ? `<p><strong>Dirección:</strong> ${p.direccion}</p>` : ""}
+              ${p.puntoReferencia ? `<p><strong>Punto Ref:</strong> ${p.puntoReferencia}</p>` : ""}
+              <p><strong>Productos:</strong></p>
+              <div class="productos">${(p.productos || "").replace(/\n/g, "<br>")}</div>
+              <p><strong>Total Productos:</strong> ${formatoCOP(p.totalProductos)}</p>
+              <p><strong>Costo Domicilio:</strong> ${formatoCOP(p.costoDomicilio)}</p>
+              <p><strong>Total a Pagar:</strong> ${formatoCOP(p.totalPagar)}</p>
+              <p><strong>Método de Pago:</strong> ${p.metodoPago || "—"}</p>
+              ${p.ubicacionGoogleMaps ? `<p><strong>Ubicación:</strong> <a href="${p.ubicacionGoogleMaps}" target="_blank">Ver mapa</a></p>` : ""}
+              ${p.observaciones ? `<p><strong>Observaciones:</strong> ${p.observaciones}</p>` : ""}
+              <button class="boton-factura">👁️ Ver Factura</button>
+            </div>
+          `;
+          div.querySelector(".pedido-header").addEventListener("click", () => div.classList.toggle("activo"));
+          div.querySelector(".boton-factura").addEventListener("click", () => {
+            let productosArray = [];
+            if (typeof p.productos === "string") {
+              productosArray = p.productos.split("\n").filter(x => x.trim() !== "").map(linea => {
+                const partes = linea.split("-").map(x => x.trim());
+                return { nombre: partes[0], cantidad: 1, precio: Number((partes[1] || "0").replace(/\D/g, "")) || 0 };
+              });
+            }
+            const pedidoLocal = {
+              tipoEntrega: p.tipoEntrega,
+              factura: p.numeroFactura,
+              fecha: p.fecha,
+              hora: p.hora,
+              cliente: { nombre: p.nombre, telefono: p.telefono ?? "0", mesa: p.mesa },
+              direccion: p.direccion,
+              productos: productosArray,
+              subtotal: Number(p.totalProductos || 0),
+              costoDomicilio: Number(p.costoDomicilio || 0),
+              totalPagar: Number(p.totalPagar || 0),
+              metodoPago: p.metodoPago,
+              observaciones: p.observaciones,
+              ubicacion: p.ubicacionGoogleMaps || ""
+            };
+            localStorage.setItem("lastPedido", JSON.stringify(pedidoLocal));
+            window.open("facturalocal.html", "_blank");
+          });
+          bloqueMes.appendChild(div);
+        });
+        contenedor.appendChild(bloqueMes);
+
+        headerMes.addEventListener("click", () => bloqueMes.classList.toggle("oculto"));
+      });
+    }
+
+    function actualizarDashboard(pedidos) {
+      const total = pedidos.length;
+      const ventas = pedidos.reduce((a,p)=>a + (Number(p.totalPagar)||0), 0);
+      const promedio = total ? ventas / total : 0;
+      document.getElementById("totalPedidos").textContent = total;
+      document.getElementById("totalVentas").textContent = formatoCOP(ventas);
+      document.getElementById("promedioPedido").textContent = formatoCOP(promedio);
+    }
+
+    function filtrarPedidos() {
+      const texto = document.getElementById("buscar").value.toLowerCase();
+      const fechaFiltro = document.getElementById("fechaFiltro").value;
+
+      const filtrados = pedidosGlobal.filter(p => {
+        const coincideTexto =
+          (p.nombre || "").toLowerCase().includes(texto) ||
+          (p.numeroFactura || "").toLowerCase().includes(texto);
+
+        let coincideFecha = true;
+        if (fechaFiltro && p.fecha) {
+          const partes = p.fecha.split("/");
+          if (partes.length === 3) {
+            const fechaPedido = `${partes[2]}-${partes[1].padStart(2,"0")}-${partes[0].padStart(2,"0")}`;
+            coincideFecha = fechaPedido === fechaFiltro;
+          } else {
+            coincideFecha = false;
+          }
+        }
+
+        return coincideTexto && coincideFecha;
+      });
+
+      mostrarPedidos(filtrados);
+    }
+
+    document.getElementById("filtrarBtn").addEventListener("click", filtrarPedidos);
+const recargarBtn = document.getElementById("recargarBtn");
+recargarBtn.addEventListener("click", () => cargarPedidos(false));
+
+    function mostrarAvisoNuevoPedido() {
+      document.title = "¡Nuevo pedido!";
+      estado.style.boxShadow = "0 0 8px #28a745";
+      setTimeout(() => { document.title = "Panel de Pedidos"; estado.style.boxShadow = ""; }, 3000);
+    }
+
+    function iniciarRelojConexion() {
+      if (intervaloDuracion) clearInterval(intervaloDuracion);
+      intervaloDuracion = setInterval(actualizarEstadoConTiempo, 1000);
+    }
+
+    function actualizarEstadoConTiempo() {
+      if (!horaConexion) return;
+      const ahora = new Date();
+      const dif = Math.floor((ahora - horaConexion)/1000);
+      const horas = Math.floor(dif/3600);
+      const minutos = Math.floor((dif%3600)/60);
+      const segundos = dif%60;
+      const tiempo = (horas>0?horas+"h ":"") + (minutos>0?minutos+"m ":"") + segundos+"s";
+      const horaStr = horaConexion.toLocaleTimeString([], { hour:"2-digit", minute:"2-digit" });
+      estado.textContent = `🟢 Conectado desde ${horaStr} (${tiempo})`;
+    }
+
+    cargarPedidos();
+  </script>
+</body>
+</html>
