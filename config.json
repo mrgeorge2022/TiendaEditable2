@@ -1,0 +1,39 @@
+{
+    "tituloPagina": "A su gusto | Restaurante | Ordena online",
+    "nombreRestaurante": "A Su Gusto",
+    "logo": "img/icono_tienda.png",
+    "colores": {
+        "--bg-body": "#222",
+        "--header": "linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('img/fondoheader.png')",
+        "--accent": "#e40616",
+        "--bg-skeleton": "linear-gradient(135deg, #f9f9f9, #e9e9e9)",
+        "--bg-start": "#333",
+        "--bg-end": "#444",
+        "--card-bg": "#222"
+    },
+    "redes": {
+        "whatsapp": "https://wa.me/573045587086",
+        "instagram": "https://www.instagram.com/",
+        "facebook": "https://www.facebook.com/"
+    },
+    "numeroWhatsAppMensajes": "573045587086",
+    "footerQR": "img/QR_tienda.png",
+    "sede": {
+        "nombre": "A Su Gusto - La Boquilla.",
+        "direccion": "Carrera 9 - Calle Principal",
+        "telefono": "(+57) 304 558 7086"
+    },
+    "coordenadasSede": [
+        10.4739892,
+        -75.4954141
+    ],
+    "footerLogo": "img/logo.png",
+    "crearTienda": "https://wa.me/573022666530?text=Quiero%20crear%20mi%20tienda",
+    "apiUrls": {
+        "productos": "https://script.google.com/macros/s/AKfycbwmVsrJE3dh2Ewc-K37z5K6vxboDyI1UAZ21jAjxg9LJrQ4QoRIOgjwXxE_yx9jwX6QUQ/exec",
+        "horario": "https://script.google.com/macros/s/AKfycby0H0f1226C5uXNZT-oq16gP5n84JhaOuc4-aGLp2eoiLulyBMzomMd-v6mpZFmy-c/exec",
+        "envioBaseDatos": "https://script.google.com/macros/s/AKfycbxYOw2iAbWX8vHreEZQowy40BCQR8hNry9BtQc3LDonJt_PKd5e01h6Q0_cA0r4UevL/exec",
+        "reciboBaseDatos": "https://script.google.com/macros/s/AKfycbxYOw2iAbWX8vHreEZQowy40BCQR8hNry9BtQc3LDonJt_PKd5e01h6Q0_cA0r4UevL/exec",
+        "CajaDatos": "https://script.google.com/macros/s/AKfycbzL3nHPYFtSpGSNruTvt8r07yUCmO-Cbb4HGPToy86tn6m4XgWHlCbyJOktfs-7txk/exec"
+    }
+}
