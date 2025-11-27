@@ -22,6 +22,8 @@ let cart = [];
 let currentProduct = null;
 let modalQuantity = 1;
 let configTienda = null;
+let currentDeliveryType = ""; // 🔥 VARIABLE PARA RASTREAR EL TIPO DE ENTREGA
+
 
 // 🧩 Escuchar cuando config.json haya sido cargado
 document.addEventListener("configCargado", (e) => {
@@ -1078,25 +1080,24 @@ function closeDeliveryModal() {
 }
 
 function selectDeliveryType(type) {
-  closeDeliveryModal();
+    closeDeliveryModal();
 
-  const cartTotal = localStorage.getItem("cartTotal") || 0;
-  console.log("🧾 Total cargado desde localStorage:", cartTotal);
+    const cartTotal = localStorage.getItem("cartTotal") || 0;
 
-  // Guardar observaciones si existen
-  const observaciones = document.getElementById("cart-notes")?.value.trim() || "";
-  localStorage.setItem("cartObservaciones", observaciones);
+    // Guardar observaciones si existen
+    const observaciones = document.getElementById("cart-notes")?.value.trim() || "";
+    localStorage.setItem("cartObservaciones", observaciones);
+    
+    // 🔥 CRÍTICO: Guardar el tipo de entrega
+    currentDeliveryType = type; 
 
-
-  if (type === "Recoger en tienda" || type === "Mesa") {
-    openCustomerModal(type);
-  } else if (type === "Domicilio") {
-    console.log("➡️ Redirigiendo a domicilio.html...");
-    window.location.href = "domicilio.html";
-  }
-
+    if (type === "Recoger en tienda" || type === "Mesa") {
+        // Al abrir el modal, le pasamos el tipo para que sepa cómo configurarse.
+        openCustomerModal(type); 
+    } else if (type === "Domicilio") {
+        window.location.href = "domicilio.html";
+    }
 }
-
 
 // ================================
 // ✅ VALIDACIONES DEL FORMULARIO DEL CLIENTE
@@ -1137,25 +1138,47 @@ document.addEventListener("DOMContentLoaded", () => {
 const customerModalEl = document.getElementById("customer-modal");
 const customerForm = document.getElementById("customer-form");
 const mesaField = document.getElementById("mesa-field");
-let currentDeliveryType = ""; // Guardará si es tienda o mesa
 
 function openCustomerModal(type) {
-  currentDeliveryType = type;
-  document.getElementById("customer-modal-title").textContent =
-    type === "Mesa" ? "Pedido en mesa" : "Recoger en tienda";
+    // Definiciones de elementos (si no están ya fuera de la función)
+    const mesaField = document.getElementById("mesa-field");
+    const customerForm = document.getElementById("customer-form");
+    const customerModalEl = document.getElementById("customer-modal"); // Asumiendo que es el ID del modal
+    const mesaInput = document.getElementById("customer-mesa"); // 🔥 Necesitamos el input
 
-  // Mostrar o esconder campo de mesa según el tipo
-  mesaField.style.display = type === "Mesa" ? "block" : "none";
+    currentDeliveryType = type;
+    document.getElementById("customer-modal-title").textContent =
+        type === "Mesa" ? "Pedido en mesa" : "Recoger en tienda";
 
-  // Limpiar formulario
-  customerForm.reset();
-  customerModalEl.classList.add("show");
+    // Mostrar o esconder campo de mesa según el tipo
+    mesaField.style.display = type === "Mesa" ? "block" : "none";
+
+    // 🔥 CRÍTICO: Manipular el atributo 'required' del input de mesa
+    if (type === "Mesa") {
+        // Si es Mesa, nos aseguramos de que sea requerido (aunque ya lo tenga en el HTML)
+        mesaInput.setAttribute("required", "required");
+    } else {
+        // Si es Recoger en tienda, eliminamos la restricción 'required'
+        // para que el formulario se pueda enviar sin el número de mesa.
+        mesaInput.removeAttribute("required"); 
+        mesaInput.value = ""; // Limpiar el valor por si acaso
+    }
+
+    // Limpiar formulario y mostrar modal
+    customerForm.reset();
+    customerModalEl.classList.add("show");
 }
 
 function closeCustomerModal() {
-  customerModalEl.classList.remove("show");
+    // Si cierras el modal con la X o el botón Cancelar, también es buena práctica quitar el required.
+    const mesaInput = document.getElementById("customer-mesa");
+    if(mesaInput) {
+        mesaInput.removeAttribute("required");
+    }
+    
+    // ... resto de tu función
+    customerModalEl.classList.remove("show");
 }
-
 
 
 

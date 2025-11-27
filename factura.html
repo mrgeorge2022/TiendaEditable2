@@ -4,261 +4,337 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-   <title>Cargando...</title>
-  <link rel="icon" type="image/png" href="img/icono_tienda.png">
+  <title></title>
+  
   <style>
+    /* ⚠️ Estilos Críticos para POS 58mm (VISUALIZACIÓN Y IMPRESIÓN) */
     body {
-      font-family: "Inter", "Helvetica", Arial, sans-serif;
-      background: #f5f5f5;
+      /* Permitir que el body ocupe el ancho completo para centrar el ticket */
+      width: 100%; 
+      font-family: monospace, sans-serif; /* Fuente simple para mejor impresión térmica */
+      font-size: 10px; /* TAMAÑO DE FUENTE BASE AUMENTADO (10px) */
       margin: 0;
       padding: 0;
-      color: #1a1a1a;
+      color: #000;
+      /* Fondo gris claro para que el ticket blanco resalte en el centro */
+      background: #f0f0f0; 
     }
 
     .page {
-      background: #fff;
-      margin: 20px auto;
-      padding: 30px 25px;
-      max-width: 800px;
-      border-radius: 12px;
+      /* Ancho y márgenes para simular el ticket y CENTRARLO */
+      width: 58mm;
+      max-width: 58mm;
+      background: #fff; /* Fondo blanco del ticket */
+      margin: 20px auto; /* ESTO CENTRA EL TICKET EN PANTALLA */
+      padding: 5px 3px; /* Mínimo padding horizontal */
       box-sizing: border-box;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2); /* Ligera sombra para separar del fondo web */
     }
 
-    /* ==== ENCABEZADO ==== */
+    /* ==== ENCABEZADO Y TÍTULOS ==== */
     .header-column {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
       text-align: center;
-      margin-bottom: 25px;
+      margin-bottom: 5px; 
     }
 
+    /* NUEVO: ESTILOS PARA EL LOGO */
     .header-column .logo {
-      width: 50px;
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 10px;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #f1f1f1;
+      height: auto; /* Permitir que ocupe espacio */
+      width: 100%; /* Ocupar el ancho disponible para centrar */
+      margin-bottom: 5px; /* Pequeño margen debajo del logo */
+      overflow: visible;
     }
-
+    
     .header-column .logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
+        width: 40px; /* Tamaño del logo (ajustar según necesidad) */
+        height: auto; /* Mantener proporción */
+        filter: grayscale(100%); /* CONVERTIR A BLANCO Y NEGRO */
+        display: block; /* Para que margin: auto funcione */
+        margin: 0 auto; /* Centrar el logo */
     }
 
     .store-info h2 {
       margin: 0;
-      font-size: 12px;
-      font-weight: 700;
-      color: #111;
+      font-size: 14px; /* Título de la tienda GRANDE */
+      font-weight: 900; 
     }
 
     .store-info p {
-      margin: 3px 0;
-      font-size: 10px;
-      color: #666;
-      line-height: 1.3;
+      margin: 0; 
+      font-size: 9px; /* Dirección y Teléfono */
+      line-height: 1.1; 
     }
 
     .factura-info {
-      margin-top: 10px;
-      font-size: 1rem;
-      background: #f1f1f1;
-      padding: 6px 12px;
-      border-radius: 8px;
-      display: inline-block;
+      margin-top: 5px;
+      padding: 0;
+      text-align: center;
     }
-
+    
     .factura-info span {
-      font-size: 12px;
-      color: #666;
+        font-size: 10px;
+    }
+    
+    #factura-num {
+      font-size: 16px !important; /* NÚMERO DE FACTURA ENORME */
+      font-weight: 900;
+      margin-top: 2px;
     }
 
-    /* ==== META ==== */
+    /* ==== META (Cliente/Fecha) ==== */
     .meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      font-size: 0.9rem;
-      line-height: 1.6;
-      color: #1a1a1a;
-      margin-bottom: 10px;
+      font-size: 11px; 
+      line-height: 1.3; 
+      margin-bottom: 8px; 
+      padding-top: 5px;
+      font-weight: 700; 
+    }
+    
+    .meta div {
+        margin: 0;
+        padding: 0;
     }
 
-    .meta .left {
-      grid-column: 1 / span 2;
-    }
 
+    /* ==== LÍNEA DIVISORA (CRÍTICA) ==== */
     hr {
       border: none;
-      border-top: 1px solid #e0e0e0;
-      margin: 20px 0;
+      border-top: 1px dashed #000; /* Línea de puntos clara */
+      margin: 6px 0; 
     }
 
-    /* ==== TABLA ==== */
+    /* ==== TABLA (Productos) - Maximizando fuentes sin desbordar 4 columnas ==== */
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.9rem;
+      font-size: 10px;
+      table-layout: fixed;
     }
 
     th {
-      background: #f1f1f1;
-      text-align: center;
-      padding: 8px 5px;
-      font-weight: 600;
-      border-bottom: 2px solid #e0e0e0;
+      text-align: left;
+      padding: 3px 0; 
+      font-weight: 900;
+      border-bottom: 2px solid #000; /* Línea separadora gruesa */
     }
+    
+    /* Anchos de columna balanceados para que el producto quepa lo mejor posible */
+    #items-table thead tr th:first-child { width: 45%; text-align: left; } /* Producto */
+    #items-table thead tr th.qty { width: 10%; text-align: center; } /* Cantidad */
+    #items-table thead tr th.price { width: 20%; text-align: right; } /* Precio Unitario */
+    #items-table thead tr th.total { width: 25%; text-align: right; } /* Total */
 
     td {
-      border-bottom: 1px solid #e0e0e0;
-      padding: 5px 5px;
-      vertical-align: top;
+      padding: 3px 0; 
+      line-height: 1.3; 
     }
 
-    td.qty,
-    td.price {
-      text-align: center;
+    td strong {
+        font-size: 11px; /* NOMBRE DEL PRODUCTO MÁS GRANDE */
+        font-weight: 900;
+    }
+    
+    td small {
+        display: block; 
+        font-size: 8px; /* Instrucciones pequeñas para ahorrar espacio vertical */
+        color: #000 !important; /* Fuerza el color negro para máxima legibilidad */
+        margin-top: 1px;
     }
 
-    td.total {
-      text-align: right;
+    /* Alineaciones y visibilidad de números */
+    td.qty { 
+        text-align: center; 
+        font-size: 11px;
+        font-weight: 900;
+    }
+    td.price { 
+        text-align: right;
+        font-size: 10px;
+    }
+    td.total { 
+        text-align: right; 
+        font-size: 11px;
+        font-weight: 900;
     }
 
-    tbody tr:nth-child(even) {
-      background-color: #fafafa;
-    }
 
     /* ==== TOTALES ==== */
     .totals {
-      margin-top: 15px;
-      padding: 10px;
-      background: #fafafa;
+      margin-top: 5px;
+      padding: 0;
     }
 
     .totals .row {
       display: flex;
       justify-content: space-between;
-      font-size: 0.95rem;
+      font-size: 11px; /* Letra grande para sub-totales */
+      line-height: 1.4;
+    }
+    
+    .totals .row div:last-child {
+        font-weight: 900; 
     }
 
     .totals .row.total {
-      font-weight: 700;
-      border-top: 1px dashed #bbb;
+      font-weight: 900;
+      border-top: 1px dashed #000;
       margin-top: 6px;
-      padding-top: 8px;
+      padding-top: 6px;
+      font-size: 16px; /* Tamaño por defecto ENORME para las filas .total */
+    }
+    
+    /* REGLA SOLICITADA: Total sin propina más pequeño (9px) */
+    .totals .row.total:not(#total-final-row) {
+        font-size: 12px; 
+        font-weight: 900;
     }
 
-    /* ==== OBSERVACIONES ==== */
+    /* ESTILO: TOTAL A PAGAR (Grande, 16px) - El ID tiene más prioridad que el selector anterior */
+    .totals .row#total-final-row { 
+        font-size: 16px;
+        font-weight: 900;
+    }
+    
+    /* Método de pago se destaca con fuente grande */
+    #metodo-pago-row {
+        align-items: center;
+        font-size: 12px; 
+        line-height: 1.5;
+        font-weight: 900;
+    }
+
+    /* ==== OBSERVACIONES Y FOOTER ==== */
     .observaciones {
-      margin-top: 25px;
-      font-size: 0.95rem;
-      padding: 10px 15px;
-    }
-
-    .observaciones strong {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    /* ==== FOOTER ==== */
-    .footer {
-      text-align: center;
-      margin-top: 25px;
-      font-size: 0.8rem;
-      color: #666;
-      line-height: 1.4;
-    }
-
-    .footer div:last-child {
-      color: #999;
-      font-size: 0.75rem;
-    }
-
-    /* ==== BOTONES ==== */
-    .print-actions {
       display: flex;
       justify-content: center;
-      gap: 12px;
       margin-top: 20px;
+      margin-bottom: 20px;
+      font-size: 10px;
+      font-weight: 700;
     }
 
+    /* Estilos para el contenedor del QR (Centrado en ticket) */
+.qr-container { /* CAMBIO AQUÍ: Usamos la clase explícita */
+  text-align: center; /* Centra el contenido (texto y QR como inline) */
+  margin-top: 10px;
+  padding-top: 5px;
+  border-top: 1px dashed #000;
+}
+
+/* Y sus descendientes: */
+.qr-container p:first-child { /* CAMBIO AQUÍ */
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.qr-container img { /* CAMBIO AQUÍ */
+    /* Tamaño del QR se mantiene pequeño (80px) para no desbordar */
+    width: 80px !important; 
+    height: 80px !important;
+    /* FIX: Asegurar que la imagen se centre correctamente */
+    display: block; /* Tratar la imagen como un bloque */
+    margin: 3px auto; /* Centrar con márgenes automáticos */
+}
+
+.qr-container p:last-child { /* CAMBIO AQUÍ */
+    margin-top: 10px;
+    padding: 0;
+    line-height: 1.1;
+    font-size: 8px;
+    word-break: break-all;
+}
+
+    .footer {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 9px; 
+      line-height: 1.2;
+    }
+
+    /* ESTILOS PARA QUE LOS BOTONES SE VEAN EN EL NAVEGADOR */
+    .print-actions {
+      text-align: center;
+      margin-top: 15px;
+      padding-top: 10px;
+      border-top: 1px dashed #ccc; /* Separador visual en web */
+      display: block !important; 
+    }
+    
     .print-actions button {
-      padding: 8px 16px;
-      border: none;
-      background: #111;
-      color: #fff;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.2s;
+        padding: 5px 10px;
+        margin: 5px;
+        font-size: 10px; /* Reducido para que quepa bien en el 58mm simulado */
+        cursor: pointer;
+        border: 1px solid #000;
+        border-radius: 4px;
+        font-weight: 700;
+    }
+    
+    .print-actions #btn-print {
+        background: #e6ffec;
+        color: #007c1f;
+        border-color: #007c1f;
+    }
+    
+    .print-actions #btn-close {
+        background: #ffe6e6;
+        color: #cc0000;
+        border-color: #cc0000;
     }
 
-    .print-actions button:hover {
-      background: #333;
+    /* Estilos para el contenedor del QR (Centrado en ticket) */
+    .footer + div {
+      text-align: center; /* Centra el contenido (texto y QR como inline) */
+      margin-top: 10px;
+      padding-top: 5px;
+      border-top: 1px dashed #000;
     }
-
-    /* ==== IMPRESIÓN ==== */
-    @media print and (max-width: 80mm) {
-      body {
-        background: #fff;
-      }
-
-      .page {
-        padding: 5px;
-        font-size: 9px;
-        max-width: 58mm;
-        box-shadow: none;
-        border-radius: 0;
-      }
-
-      .header-column .logo {
-        width: 50px;
-        height: 50px;
-      }
-
-      .store-info h2 {
-        font-size: 1rem;
-      }
-
-      .store-info p {
-        font-size: 0.75rem;
-      }
-
-      .totals,
-      table {
-        font-size: 9px;
-      }
-
-      .footer {
+    
+    .footer + div p:first-child {
+        font-size: 10px;
+        font-weight: 700;
+    }
+    
+    .footer + div img {
+        /* Tamaño del QR se mantiene pequeño (80px) para no desbordar */
+        width: 80px !important; 
+        height: 80px !important;
+        /* FIX: Asegurar que la imagen se centre correctamente */
+        display: block; /* Tratar la imagen como un bloque */
+        margin: 3px auto; /* Centrar con márgenes automáticos */
+    }
+    
+    .footer + div p:last-child {
+        margin: 0;
+        padding: 0;
+        line-height: 1.1;
         font-size: 8px;
-      }
+        word-break: break-all;
+    }
+    
 
+    /* Media Query de impresión final (Asegura la impresión 58mm sin fondo gris) */
+    @media print {
+      body {
+        background: #fff !important; /* Sin fondo en impresión */
+        width: 58mm;
+        max-width: 58mm;
+      }
+      
+      .page {
+        margin: 0; /* Ocupa todo el espacio de impresión */
+        box-shadow: none;
+        padding: 5px 3px; 
+      }
+      
+      /* REGLA CRÍTICA: Oculta los botones solo al imprimir */
       .print-actions {
         display: none !important;
       }
-    }
-
-    @media print and (min-width: 100mm) {
-      .page {
-        width: 210mm;
-        padding: 15mm;
-        box-shadow: none;
-        border-radius: 0;
-      }
-
-      table {
-        font-size: 13px;
-      }
-    }
-
-    @media print {
-      .print-actions {
-        display: none;
+      
+      * {
+        color: #000 !important;
+        background: #fff !important;
       }
     }
   </style>
@@ -269,20 +345,19 @@
 <body>
   <div class="page" id="page">
     <header class="header-column">
-      <div class="logo">
-        <img src="../img/icono_tienda.png" alt="Logo del restaurante">
-      </div>
       <div class="store-info">
         <h2 id="store-name"></h2>
-        <p id="store-address"><br></p>
+        <p id="store-address"></p>
         <p id="store-phone"></p>
       </div>
 
       <div class="factura-info">
-        <span>FACTURA</span>
-        <div id="factura-num" style="font-weight:700;font-size:16px"></div>
+        <span>FACTURA N°</span>
+        <div id="factura-num"></div>
       </div>
     </header>
+
+    <hr />
 
     <div class="meta">
       <div class="left">
@@ -300,14 +375,16 @@
     <table id="items-table">
       <thead>
         <tr>
-          <th>Producto</th>
-          <th class="qty">Cant.</th>
-          <th class="price">Precio</th>
-          <th class="total">Total</th>
+          <th>PRODUCTO</th>
+          <th class="qty">CANT</th>
+          <th class="price">PRECIO</th>
+          <th class="total">TOTAL</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
+
+    <hr />
 
     <div class="totals">
       <div class="row">
@@ -326,20 +403,32 @@
         <div>Propina (10%)</div>
         <div id="propina">$0</div>
       </div>
-      <div class="row total">
-        <div>Total con propina</div>
+      <div class="row total" id="total-final-row">
+        <div>TOTAL A PAGAR</div>
         <div id="total-pagar">$0</div>
       </div>
     </div>
 
+    <hr />
+    
+    <div class="totals">
+        <div class="row" id="metodo-pago-row">
+            <div><strong>MÉTODO DE PAGO</strong></div>
+            <div><strong>—</strong></div>
+        </div>
+    </div>
+    
+    <hr />
+
+
     <div class="observaciones">
-      <strong>Observaciones:</strong>
+      <strong>OBSERVACIONES:</strong>
       <div id="obs-text">—</div>
     </div>
 
     <div class="footer">
-      <div>Gracias por su compra</div>
-      <div>Documento impreso para respaldo del pedido</div>
+      <div>!GRACIAS POR SU COMPRA!</div>
+      <div>Documento no fiscal, Solo para uso interno.</div>
     </div>
 
     <div class="print-actions">
@@ -358,6 +447,14 @@ fetch("config.json")
     document.getElementById("store-name").textContent = sede.nombre || "—";
     document.getElementById("store-address").textContent = sede.direccion || "—";
     document.getElementById("store-phone").textContent = "Tel: " + (sede.telefono || "—");
+
+    // Establecer la URL del logo desde config.json si existe
+    if (sede.logoUrl) {
+        document.getElementById("store-logo").src = sede.logoUrl;
+    } else {
+        // Ocultar el logo si no hay URL para evitar un icono de imagen rota
+        document.getElementById("store-logo");
+    }
   })
   .catch(err => console.warn("No se pudo cargar config.json:", err));
 
@@ -420,67 +517,49 @@ fetch("config.json")
       document.getElementById('propina').textContent = formato(propina);
       document.getElementById('total-pagar').textContent = formato(totalConPropina);
       document.getElementById('obs-text').textContent = pedido.observaciones || '';
-      // 💰 Mostrar método de pago debajo del total con propina
-      const totalsDiv = document.querySelector(".totals");
-      const metodoPagoRow = document.createElement("div");
-      metodoPagoRow.classList.add("row");
-      metodoPagoRow.innerHTML = `
-  <div><strong>Método de pago</strong></div>
-  <div><strong>${pedido.metodoPago || 'No especificado'}</strong></div>
-`;
-      totalsDiv.appendChild(metodoPagoRow);
+      
+      // 💰 Mostrar método de pago
+      document.querySelector('#metodo-pago-row div:last-child').innerHTML = `<strong>${pedido.metodoPago || 'No especificado'}</strong>`;
 
 
       // Si propina = 0, ocultar línea
       if (!propina) {
-        document.querySelector('#propina').parentElement.style.display = 'none';
+        document.getElementById('propina').parentElement.style.display = 'none';
       }
 
       document.getElementById('btn-print').addEventListener('click', () => window.print());
       document.getElementById('btn-close').addEventListener('click', () => {
-        localStorage.removeItem('lastPedido'); // 🧹 Limpia la factura almacenada
-        window.location.href = 'index.html';   // 🔙 Regresa al inicio
+        localStorage.removeItem('lastPedido'); 
+        window.location.href = 'index.html';   
       });
 
-      // 🧭 Si es domicilio y tiene ubicación, generar QR exacto de Google Maps
-      if (pedido.tipoEntrega === "Domicilio" && pedido.ubicacion) {
-        const qrContainer = document.createElement("div");
-        qrContainer.style.textAlign = "center";
-        qrContainer.style.marginTop = "20px";
+// 🧭 Generación de QR 
+if (pedido.tipoEntrega === "Domicilio" && pedido.ubicacion) {
+  const qrContainer = document.createElement("div");
+  // AÑADIDO: Asignar una clase para facilitar el manejo con CSS
+  qrContainer.className = "qr-container"; 
 
-        const qrTitle = document.createElement("p");
-        qrTitle.textContent = "Escanea para saber la ubicación de este pedido";
-        qrTitle.style.fontSize = "0.9rem";
-        qrTitle.style.color = "#333";
+  const qrTitle = document.createElement("p");
+  qrTitle.textContent = "ESCANEA PARA UBICACIÓN (DOMICILIO)";
 
-        const qrImage = document.createElement("img");
-        qrImage.alt = "Código QR ubicación exacta";
-        qrImage.style.width = "160px";
-        qrImage.style.height = "160px";
-        qrImage.style.marginTop = "8px";
+  const qrImage = document.createElement("img");
+  qrImage.alt = "Código QR ubicación exacta";
+  
+  const linkCompleto = pedido.ubicacion.trim();
+  const linkCodificado = encodeURIComponent(linkCompleto);
+  // Usamos 100x100 para mejor escaneo, el CSS lo reducirá a 80x80
+  qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?data=${linkCodificado}&size=100x100&margin=0&qzone=1`;
 
-        // 🧩 Aseguramos que el QR contenga TODO el enlace completo sin pérdida de caracteres
-        const linkCompleto = pedido.ubicacion.trim();
-        const linkCodificado = encodeURIComponent(linkCompleto);
+  qrContainer.appendChild(qrTitle);
+  qrContainer.appendChild(qrImage);
 
-        // URL exacta del QR, sin recortes ni concatenaciones
-        qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?data=${linkCodificado}&size=160x160&margin=0&qzone=1`;
-
-        qrContainer.appendChild(qrTitle);
-        qrContainer.appendChild(qrImage);
-
-        document.querySelector(".footer").before(qrContainer);
-
-        // 🔍 También imprimimos el link debajo por respaldo
-        const linkTexto = document.createElement("p");
-        linkTexto.textContent = linkCompleto;
-        linkTexto.style.fontSize = "0.75rem";
-        linkTexto.style.color = "#666";
-        linkTexto.style.wordBreak = "break-all";
-        linkTexto.style.marginTop = "6px";
-        qrContainer.appendChild(linkTexto);
-      }
-
+  // Imprimimos el link debajo por respaldo (pequeño)
+  const linkTexto = document.createElement("p");
+  linkTexto.textContent = linkCompleto;
+  qrContainer.appendChild(linkTexto);
+  
+  document.querySelector(".footer").before(qrContainer);
+}
 
       // autoimprimir tras abrir
       setTimeout(() => window.print(), 800);
