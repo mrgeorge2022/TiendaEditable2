@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cargando...</title>
+  <title></title>
   <link id="favicon" rel="icon" type="image/png" href="">
   <style>
     :root {
-      --bg-body: linear-gradient(135deg, #fafafa, #eceff1);
-      --card-bg: #ffffff;
+--bg-body: #1e1e2d;      
+--card-bg: #ffffff;
       --muted: #616161;
       --text-color: #212121;
       --textarea: #f9f9f9;
@@ -38,7 +38,7 @@
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: var(--bg-body);
       color: var(--text-color);
-      padding: 2rem 1rem;
+      padding: 10px 5px 10px 5px;
       min-height: 100vh;
     }
 
@@ -48,19 +48,18 @@
       justify-content: center;
       align-items: center;
       gap: 10px;
-      margin-bottom: 1rem;
     }
 
     .header img {
-      width: 45px;
-      height: 45px;
+      width: 35px;
+      height: 35px;
       object-fit: contain;
     }
 
     .header h1 {
       font-size: 2.2rem;
       font-weight: 700;
-      color: var(--text-color);
+      color: #fff;
       text-align: center;
       letter-spacing: 0.5px;
     }
@@ -72,12 +71,11 @@
     /* ===== FECHA Y BOTÓN ===== */
     .fecha-container {
       display: flex;
-      justify-content: center;
+      justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 0.8rem;
-      margin-bottom: 2rem;
-      padding: 1rem 1.5rem;
+      padding: 6px;
       border-radius: 12px;
     }
 
@@ -115,7 +113,7 @@
 
     /* ===== BOTÓN RECARGAR ===== */
     #btn-recargar {
-      background: linear-gradient(45deg, var(--color-mesa), #4fc3f7);
+      background: #000;
       border: none;
       color: #fff;
       font-weight: 600;
@@ -131,51 +129,192 @@
       transform: scale(0.97);
     }
 
+    /* ======================================= */
+/* 🆕 FILTROS DE TIPO (Interruptores Toggle) */
+/* ======================================= */
+
+/* Contenedor general de los interruptores */
+.filter-switches {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap; /* Para que se ajusten en pantallas pequeñas */
+}
+
+/* Oculta el checkbox nativo para que solo se vea la etiqueta estilizada */
+.filter-input {
+  display: none;
+}
+
+/* Estilo base de la etiqueta (el cuerpo visible del interruptor) */
+.filter-label {
+  cursor: pointer;
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 2px solid; /* Borde para el estado inactivo */
+  opacity: 0.6; /* Un poco atenuado cuando está inactivo */
+  text-align: center;
+}
+
+/* Estilo ACTIVO (Cuando el input está 'checked') */
+.filter-input:checked + .filter-label {
+  opacity: 1; /* Color completo */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Sombra suave para destacar */
+  transform: translateY(-1px); /* Ligero efecto de "presionado" */
+}
+
+
+#filter-domicilio:checked + .filter-label {
+  background: var(--color-domicilio);
+  color: #fff;
+  border-color: var(--color-domicilio);
+}
+
+/* Colores para el interruptor de Mesa */
+
+#filter-mesa:checked + .filter-label {
+  background: var(--color-mesa);
+  color: #fff;
+  border-color: var(--color-mesa);
+}
+
+
+#filter-recoger:checked + .filter-label {
+  background: var(--color-recoger);
+  color: #fff;
+  border-color: var(--color-recoger);
+}
+
+/* Ajuste responsive: hace que los interruptores ocupen todo el ancho en móviles */
+@media (max-width: 600px) {
+  .filter-switches {
+    justify-content: space-around;
+    width: 100%;
+  }
+  .filter-label {
+    flex-grow: 1; 
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+  }
+}
+
+    
+    /* ======================================= */
+    /* 🎨 CONTROLES DE SCROLL Y LISTA DE PEDIDOS */
+    /* ======================================= */
+    
+    /* Contenedor de botones de scroll (NUEVO) */
+    #scroll-button-container {
+        display: flex;
+        justify-content: center; /* Centrar las flechas */
+        gap: 20px; /* Espacio entre las flechas */
+        margin-top: 6px;
+      }
+    
+    /* Flechas de Scroll (MODIFICADO) */
+    .scroll-arrow {
+        background: none; /* Fondo oscuro */
+        color: #666;
+        border: none;
+        padding: 10px; /* Más padding para que se pueda pulsar mejor */
+        cursor: pointer;
+        z-index: 20;
+        font-size: 1.5rem; /* Tamaño de fuente más razonable para botón */
+        line-height: 1;
+        border-radius: 10px;
+        opacity: 1;
+        transition: all 0.2s ease;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     
 
-    /* ===== LISTA HORIZONTAL DE PEDIDOS ===== */
+    .scroll-arrow:active {
+        transform: scale(0.95);
+    }
+    
+    /* Lista de pedidos (Mantenemos scroll horizontal y altura flexible) */
     #lista-pedidos {
       display: flex;
       flex-wrap: nowrap;
-      gap: 1rem;
+      gap: 0.5rem;
       overflow-x: auto;
-      padding-bottom: 1rem;
-      scroll-behavior: smooth;
+      padding: 1rem 0;
+      scroll-behavior: smooth; 
+      align-items: flex-start;
+      padding-top: 1rem; 
     }
 
+    /* Estilo para la barra de scroll */
     #lista-pedidos::-webkit-scrollbar {
-      height: 8px;
-    }
+     display: auto ;
+}
 
-    #lista-pedidos::-webkit-scrollbar-track {
-      background: #e0e0e0;
-      border-radius: 10px;
-    }
+/*
+==================================================
+PEDIDO CON BORDE "SUBE Y BAJA" (SAWTOOTH/TICKET)
+==================================================
+*/
+.pedido {
+  flex: 0 0 auto;
+  width: 230px;
+  height: auto;
+  background: var(--card-bg);
+  
+  /* 1. ELIMINAR bordes dash originales */
+  border-top: none;
+  border-bottom: none;
+  
+  /* 2. AJUSTAR el padding vertical para acomodar el efecto de corte (18px ~ 1.125rem) */
+  padding: 0px 5px 18px 5px;
+  
+  box-shadow: var(--soft-shadow);
+  overflow-wrap: break-word;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative; /* ¡CRUCIAL! para los pseudo-elementos */
+}
 
-    #lista-pedidos::-webkit-scrollbar-thumb {
-      background: var(--text-color);
-      border-radius: 10px;
-    }
+/* 3. Definimos los pseudo-elementos para el patrón de corte */
+.pedido::before,
+.pedido::after {
+  content: '';
+  position: absolute;
+  left: 0px; /* Empieza después de la barra lateral izquierda */
+  width: calc(100% - 0px); /* Cubre el ancho restante */
+  height: 10px; /* Altura del "diente" */
+  
+  
+  /* Usamos el color de fondo de la PÁGINA para que el corte sea visible */
+  background-color: var(--bg-body); 
+  background-size: 10px 10px; /* Tamaño del patrón: 20px de ancho por 10px de alto */
+  background-repeat: repeat-x;
+}
 
-    #lista-pedidos::-webkit-scrollbar-thumb:hover {
-      background: var(--muted);
-    }
+/* Borde SUPERIOR: Dientes apuntando hacia arriba (corte que "muerde" el borde superior) */
+.pedido::before {
+  top: -10px;
+  /* Dibuja triángulos (mitad de 20px) del color de la tarjeta (--card-bg), 
+     y luego transparente para el corte */
+  background-image: 
+    linear-gradient(-45deg, var(--card-bg) 50%, transparent 50%),
+    linear-gradient(45deg, var(--card-bg) 50%, transparent 50%);
+}
 
-    /* ===== PEDIDO ===== */
-    .pedido {
-      flex: 0 0 auto;
-      width: 320px;
-      background: var(--card-bg);
-      border-radius: 14px;
-      padding: 1rem 1.2rem;
-      box-shadow: var(--soft-shadow);
-      border-left: 6px solid var(--text-color);
-      overflow-wrap: break-word;
-      transition: all 0.25s ease;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-    }
+/* Borde INFERIOR: Dientes apuntando hacia abajo (corte que "muerde" el borde inferior) */
+.pedido::after {
+  bottom: -10px;
+  /* Dibuja triángulos invertidos para que las puntas queden abajo */
+  background-image: 
+    linear-gradient(-135deg, var(--card-bg) 50%, transparent 50%),
+    linear-gradient(135deg, var(--card-bg) 50%, transparent 50%);
+}
 
 
     /* ===== TIPO DE ENTREGA ===== */
@@ -185,12 +324,10 @@
       font-weight: 700;
       padding: 0.45rem 1rem;
       display: inline-block;
-      border-radius: 8px;
       color: #fff;
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      box-shadow: var(--soft-shadow);
       animation: fadeIn 0.3s ease-in;
     }
 
@@ -206,18 +343,6 @@
       background: linear-gradient(45deg, #66bb6a, #81c784);
     }
 
-    /* ===== BORDES SEGÚN TIPO ===== */
-    .pedido.domicilio {
-      border-left: 6px solid var(--color-domicilio);
-    }
-
-    .pedido.mesa {
-      border-left: 6px solid var(--color-mesa);
-    }
-
-    .pedido.recoger {
-      border-left: 6px solid var(--color-recoger);
-    }
 
     /* ===== ENCABEZADO DE CADA PEDIDO ===== */
     .pedido-header {
@@ -228,11 +353,11 @@
     .pedido-datos {
       display: flex;
       flex-direction: column;
+      text-align: center;
     }
 
     .pedido-numero strong {
       color: #283593;
-      /* Azul fuerte */
       font-size: 15px;
       font-weight: 700;
     }
@@ -241,6 +366,14 @@
       color: var(--muted);
       font-weight: 700;
       font-size: 15px;
+    }
+
+    .pedido-cliente{
+      text-align: center;
+    }
+
+    .pedido-mesa{
+      text-align: center;
     }
 
     /* ===== CONTENIDO ===== */
@@ -263,40 +396,23 @@
       font-size: 0.85rem;
     }
 
-    /* Producto individual */
-    .producto-item {
-      display: flex;
-      align-items: center;
-      padding: 0.4rem 0.6rem;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    .producto-item:last-child {
-      border-bottom: none;
-    }
-
     /* Contenedor de cantidad + detalle */
     .cantidadproducto {
       display: flex;
       align-items: center;
       padding: 0.3rem 0;
-      /* espacio entre productos */
       border-bottom: 1px solid #e0e0e0;
       gap: 0.6rem;
-      /* separación entre cantidad y detalle */
     }
 
     /* Cantidad del producto */
     .producto-cantidad {
       font-weight: 700;
       font-size: 30px;
-      /* más grande */
       min-width: 35px;
-      /* ancho fijo */
       text-align: center;
       color: var(--text-color);
       flex-shrink: 0;
-      /* no se reduce */
       border-right: 1px solid #e0e0e0;
     }
 
@@ -306,11 +422,8 @@
       font-weight: bold;
       word-break: break-word;
       white-space: normal;
-      /* permite salto de línea */
       overflow-wrap: anywhere;
-      /* ajusta palabras largas */
       flex: 1;
-      /* ocupa todo el espacio restante */
     }
 
 
@@ -330,20 +443,17 @@
     }
 
     .pedido-observaciones span {
-      color: #d32f2f;
+      color: red;
       font-weight: 600;
     }
 
     /* ===== OBSERVACIONES ===== */
     .observaciones {
       margin-top: 10px;
-      color: #c62828;
+      color: red;
       font-size: 0.9rem;
-      font-weight: 500;
       background: #ffebee;
       padding: 0.5rem 0.6rem;
-      border-radius: 6px;
-      border-left: 4px solid #d32f2f;
     }
 
     /* ===== SIN PEDIDOS ===== */
@@ -369,6 +479,9 @@
     }
 
     /* ===== RESPONSIVE ===== */
+    
+    /* 🚀 REGLA ELIMINADA: EL CONTENEDOR DE BOTONES DE SCROLL SE MOSTRARÁ EN TODAS LAS PANTALLAS */
+    
     @media (max-width: 600px) {
       .fecha-container {
         flex-direction: column;
@@ -389,9 +502,7 @@
       justify-content: space-around;
       align-items: center;
       border-radius: 10px;
-      padding: 0.6rem;
-      margin: 0 auto 1rem auto;
-      /* 🔹 centra horizontalmente */
+      margin: 0 auto auto auto;
       position: sticky;
       top: 70px;
       z-index: 10;
@@ -406,6 +517,7 @@
       gap: 0.4rem;
       font-size: 0.95rem;
       font-weight: 500;
+      color: #fff;
     }
 
     .resumen-circulo {
@@ -414,12 +526,78 @@
       border-radius: 50%;
       background: var(--color);
     }
+
+
+    /* ======================================= */
+/* 🖨️ ESTILO BOTÓN DE IMPRESIÓN */
+/* ======================================= */
+
+.btn-imprimir {
+  /* Apariencia */
+  background: #c5c5c5; /* Color principal azul/cian */
+  border: none;
+  padding: 2px;
+  margin-top: 20px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  width: 100%; /* Ocupa todo el ancho del pedido */
+  text-align: center;
+  transition: all 0.2s ease;
+  
+  /* Asegura que el texto y el icono se muestren correctamente */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Espacio entre el icono y el texto */
+}
+
+.btn-imprimir:hover {
+  background: #a5a4a4; /* Un poco más claro al pasar el ratón */
+}
+
+.btn-imprimir:active {
+  transform: scale(0.98); /* Efecto de pulsación */
+}
+
+
+/* Asegurar que el botón no se imprima en la comanda real */
+@media print {
+    .btn-imprimir {
+        display: none !important;
+    }
+}
+
+
+
+/* ======================================= */
+    /* 🔄 LOADER CIRCULAR (NUEVO) */
+    /* ======================================= */
+    .loader-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        min-height: 150px; /* Para centrar la animación */
+    }
+
+    .loader {
+        border: 5px solid #f3f3f3; /* Color de fondo del borde (gris claro) */
+        border-top: 5px solid #999; /* Color de la parte animada (azul/cian) */
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1.2s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
   </style>
 
 </head>
 
 <body>
-  <!-- 🧑‍🍳 Encabezado con logo y título -->
   <div class="header">
     <img id="logoCocina" src="" alt="Logo restaurante">
     <h1>Panel de cocina</h1>
@@ -428,12 +606,36 @@
   <div class="fecha-container">
     <div id="fechabtn">
       <input type="date" id="fecha">
-      <button id="btn-recargar">🔄</button>
+      <button id="btn-recargar">Recargar</button>
     </div>
+
+    <div class="filter-switches" id="tipo-filtros">
+        <input type="checkbox" id="filter-recoger" class="filter-input" data-tipo="recoger" checked>
+        <label for="filter-recoger" class="filter-label">Recoger</label>
+
+                <input type="checkbox" id="filter-mesa" class="filter-input" data-tipo="mesa" checked>
+        <label for="filter-mesa" class="filter-label">Mesa</label>
+
+        <input type="checkbox" id="filter-domicilio" class="filter-input" data-tipo="domicilio" checked>
+        <label for="filter-domicilio" class="filter-label">Domicilio</label>
+        
+        
+    </div>
+
   </div>
 
   <div id="resumen-pedidos" class="resumen-pedidos"></div>
-  <div id="lista-pedidos">Cargando pedidos...</div>
+  
+  <div id="scroll-button-container">
+      <button class="scroll-arrow" id="scroll-left" aria-label="Desplazar a la izquierda">◀</button>
+      <button class="scroll-arrow" id="scroll-right" aria-label="Desplazar a la derecha">▶</button>
+  </div>
+
+<div id="lista-pedidos">
+    <div class="loader-container">
+        <div class="loader"></div>
+    </div>
+  </div>
 
   <script>
     // ================================
@@ -460,6 +662,7 @@
       .catch(err => console.warn("No se pudo cargar config.json:", err));
   </script>
 
+<audio id="alerta-sonido" src="sonidos/cocina.mp3" preload="auto"></audio>
   <script src="cocina.js"></script>
   <script>
     document.getElementById("btn-recargar").addEventListener("click", () => {
