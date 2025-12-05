@@ -34,6 +34,8 @@
         "horario": "https://script.google.com/macros/s/AKfycby0H0f1226C5uXNZT-oq16gP5n84JhaOuc4-aGLp2eoiLulyBMzomMd-v6mpZFmy-c/exec",
         "envioBaseDatos": "https://script.google.com/macros/s/AKfycbxYOw2iAbWX8vHreEZQowy40BCQR8hNry9BtQc3LDonJt_PKd5e01h6Q0_cA0r4UevL/exec",
         "reciboBaseDatos": "https://script.google.com/macros/s/AKfycbxYOw2iAbWX8vHreEZQowy40BCQR8hNry9BtQc3LDonJt_PKd5e01h6Q0_cA0r4UevL/exec",
-        "CajaDatos": "https://script.google.com/macros/s/AKfycbzL3nHPYFtSpGSNruTvt8r07yUCmO-Cbb4HGPToy86tn6m4XgWHlCbyJOktfs-7txk/exec"
+        "CajaDatos": "https://script.google.com/macros/s/AKfycbzL3nHPYFtSpGSNruTvt8r07yUCmO-Cbb4HGPToy86tn6m4XgWHlCbyJOktfs-7txk/exec",
+        "licencia": "https://script.google.com/macros/s/AKfycbwKMR2dsX4VAJ0BNmbsyjU6_0sWQLj4RjGG3_qpfQ1Je44K-mmwt4YQ7XLMYAlg5zMU/exec"
+
     }
 }
