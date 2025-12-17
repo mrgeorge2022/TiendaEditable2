@@ -338,29 +338,36 @@
 
 /* 1. Definición de la animación */
 @keyframes pulse-new {
-    0% {
-        /* Estado inicial: Sombra de brillo totalmente transparente y color normal */
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); 
-        background-color: var(--card); 
+    0% { 
+        background-color: #2e4a63; 
+        box-shadow: inset 0 0 10px rgba(91, 192, 222, 0.2);
     }
-    50% {
-        /* Pico de la animación: Sombra blanca con opacidad y fondo ligeramente más brillante */
-        /* Usamos RGBA para controlar la opacidad de la sombra */
-        box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.4); 
-        /* Color más claro para el efecto de palpitación */
-        background-color: #3f3f5a; 
-    }
-    100% {
-        /* Vuelve al estado inicial */
-        box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
-        background-color: var(--card);
+    100% { 
+        background-color: #3d6285; 
+        box-shadow: inset 0 0 20px rgba(91, 192, 222, 0.5);
     }
 }
 
 /* 2. Aplicación de la animación */
 /* La clase 'new' se añade temporalmente al pedido-header para aplicar el efecto */
+/* Reemplaza o añade esto en tu sección de <style> */
+
 .pedido-header.new {
-    animation: pulse-new 2s infinite alternate ease-in-out; /* 2 segundos de duración, infinito, alternado */
+    background-color: #2e4a63 !important; /* Azul oscuro resaltado */
+    border-left: 5px solid var(--primary); /* Barra lateral para mayor visibilidad */
+    animation: pulse-new 2s infinite alternate ease-in-out;
+}
+
+/* Modificamos la animación para que brille sobre ese nuevo color */
+@keyframes pulse-new {
+    0% { 
+        background-color: #2e4a63; 
+        box-shadow: inset 0 0 10px rgba(91, 192, 222, 0.2);
+    }
+    100% { 
+        background-color: #3d6285; 
+        box-shadow: inset 0 0 20px rgba(91, 192, 222, 0.5);
+    }
 }
 
 /* ==================================== */
@@ -441,10 +448,7 @@
     <button id="recargarBtn">🔃 Recargar</button>
   </div>
 
-<div 
-    id="avisoPedidosNuevos" 
-    onclick="cargarPedidos(false)"
->
+<div id="avisoPedidosNuevos">
     ⚡ NUEVO(S) PEDIDO(S) ⚡
     <span class="subtitulonotificacion">click para verlo(s)</span>
 </div>
@@ -464,6 +468,9 @@
 
     let pedidosGlobal = [];
     let ultimasFacturas = new Set();
+    let facturasNuevasTemporales = [];
+    let cantidadNuevosAnterior = 0;
+
     let API_URL = ''; 
     // 🆕 Almacena las facturas de los pedidos que están abiertos
     let facturasAbiertas = new Set(); 
@@ -492,74 +499,66 @@
     }
 
 
-    async function cargarPedidos(auto = false) {
-      // Si no es una recarga automática, guardamos el estado actual para restaurarlo después.
-      if (!auto) {
-        guardarEstadoPedidosAbiertos();
-        recargarBtn.disabled = true;
-        recargarBtn.textContent = "⏳ Actualizando...";
-        // Ocultar el aviso cuando se hace una recarga manual
-        avisoPedidosNuevos.style.display = 'none';
-      }
+async function cargarPedidos(auto = false) {
+  if (!auto) {
+    guardarEstadoPedidosAbiertos();
+    recargarBtn.disabled = true;
+    recargarBtn.textContent = "⏳ Actualizando...";
+    avisoPedidosNuevos.style.display = 'none';
+    avisoPedidosNuevos.classList.remove('active-pulse');
+  }
 
-      try {
-        const res = await fetch(API_URL + "?t=" + Date.now());
-        const data = await res.json();
+  try {
+    const res = await fetch(API_URL + "?t=" + Date.now());
+    const data = await res.json();
+    
+    const nuevasFacturas = data.map(p => p.numeroFactura).filter(f => f);
+    const nuevos = nuevasFacturas.filter(f => !ultimasFacturas.has(f));
+    const huboCargaPrevia = ultimasFacturas.size > 0;
+
+    if (nuevos.length > 0 && huboCargaPrevia) {
+        // Guardamos los nuevos en la lista temporal para resaltarlos
+        facturasNuevasTemporales = nuevos; 
+
+        if (nuevos.length > cantidadNuevosAnterior) {
+            try { audio.play(); } catch (e) { console.warn("Audio bloqueado"); }
+            cantidadNuevosAnterior = nuevos.length;
+        }
         
-        // 1. Detección de Nuevos Pedidos
-        const nuevasFacturas = data.map(p => p.numeroFactura).filter(f => f); // Filtrar null/undefined
-        const nuevos = nuevasFacturas.filter(f => !ultimasFacturas.has(f));
-        const huboCargaPrevia = ultimasFacturas.size > 0;
+        mostrarAvisoNuevoPedido();
+        avisoPedidosNuevos.style.display = 'flex'; 
+        avisoPedidosNuevos.classList.add('active-pulse');
+        avisoPedidosNuevos.innerHTML = `⚡ ${nuevos.length} PEDIDO(S) NUEVO(S) ⚡ <span class="subtitulonotificacion">click para verlo(s)</span>`;
+        
+        pedidosGlobal = data; 
 
-        if (nuevos.length > 0) {
-            // Si hay nuevos pedidos y ya existían facturas previamente (no es la primera carga)
-            if (huboCargaPrevia) { 
-                try {
-                    audio.play();
-                } catch (e) {
-                    console.warn("No se pudo reproducir el audio automáticamente. Requiere interacción del usuario.");
-                }
-                mostrarAvisoNuevoPedido();
-                
-                // 🔔 Mostrar el div de aviso si es auto-recarga
-                if (auto) {
-                    avisoPedidosNuevos.style.display = 'block';
-                    // Evitar que el loop de auto-recarga suene y muestre el aviso cada minuto si el usuario no ha recargado.
-                    // NO actualizamos ultimasFacturas *aún* si es auto-recarga y mostramos el aviso.
-                } else {
-                    // Si es recarga manual, actualizamos y mostramos los pedidos inmediatamente
-                    ultimasFacturas = new Set(nuevasFacturas);
-                    pedidosGlobal = data;
-                    mostrarPedidos(data, nuevos);
-                }
-            } else {
-                 // Es la primera carga. Simplemente actualizamos el set de facturas.
-                ultimasFacturas = new Set(nuevasFacturas);
-                pedidosGlobal = data;
-                mostrarPedidos(data, nuevos);
-            }
-
-        } else {
-            // No hay nuevos pedidos, o es la primera carga y no hay pedidos.
+        // 🟢 SI EL USUARIO PULSA RECARGAR MANUALMENTE:
+        if (!auto) {
+            ultimasFacturas = new Set(nuevasFacturas);
+            mostrarPedidos(data, facturasNuevasTemporales); // Resaltamos los nuevos
+            facturasNuevasTemporales = []; // Limpiamos después de mostrar
+            cantidadNuevosAnterior = 0;
+        }
+    } else {
+        if (!auto || !huboCargaPrevia) {
             ultimasFacturas = new Set(nuevasFacturas);
             pedidosGlobal = data;
-            mostrarPedidos(data, []); // Mostrar con una lista de nuevos vacía
+            mostrarPedidos(data, []);
+            facturasNuevasTemporales = [];
+            cantidadNuevosAnterior = 0;
         }
-        
-      } catch (error) {
-        console.error("Error al cargar pedidos:", error);
-        contenedor.innerHTML = "<p class='cargando'>Error al cargar pedidos.</p>";
-        // alert("Error de conexión al cargar pedidos. Revisa la consola."); // Alerta alternativa
-      }
-
-      finally {
-        if (!auto) {
-          recargarBtn.disabled = false;
-          recargarBtn.textContent = "🔃 Recargar";
-        }
-      }
-
     }
+  } catch (error) {
+    console.error("Error:", error);
+    if(!auto) contenedor.innerHTML = "<p class='cargando'>Error de conexión.</p>";
+  } finally {
+    if (!auto) {
+      recargarBtn.disabled = false;
+      recargarBtn.textContent = "🔃 Recargar";
+    }
+  }
+}
+
 
 function mostrarPedidos(pedidos, nuevasFacturas = []) {
     const mesesNombres = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
@@ -713,52 +712,64 @@ function mostrarPedidos(pedidos, nuevasFacturas = []) {
     }
 }
 
-    // 🔥 FUNCIÓN MODIFICADA: Ahora recibe y usa el número de factura
     async function eliminarPedidoAPI(rowIndex, numeroFactura) {
-        if (rowIndex <= 1) { 
-            alert("Error: No se puede eliminar la fila de encabezado.");
-            return;
-        }
+    if (rowIndex <= 1) { 
+        alert("Error: No se puede eliminar la fila de encabezado.");
+        return;
+    }
 
-        // Usa el número de factura en la confirmación
-        if (!confirm(`⚠️ ¿Estás seguro de que deseas ELIMINAR el pedido con FACTURA ${numeroFactura}? Esta acción es irreversible.`)) {
-            return;
-        }
+    if (!confirm(`⚠️ ¿Estás seguro de que deseas ELIMINAR el pedido con FACTURA ${numeroFactura}?`)) {
+        return;
+    }
 
-        const btn = document.querySelector(`.boton-eliminar[data-row-index="${rowIndex}"]`);
-        // Usamos el botón de factura como fallback si el de eliminar no se encuentra (caso extraño)
-        const finalBtn = btn || document.querySelector('.boton-factura'); 
-        
-        const originalText = finalBtn.textContent;
-        finalBtn.disabled = true;
-        finalBtn.textContent = 'Eliminando...';
-        
-        // Llama a la API con action=delete y el rowIndex
-        const urlDelete = `${API_URL}?action=delete&rowIndex=${rowIndex}`;
+    const btn = document.querySelector(`.boton-eliminar[data-row-index="${rowIndex}"]`);
+    const elementoPedido = btn ? btn.closest('.pedido') : null;
+    
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Eliminando...';
+    
+    const urlDelete = `${API_URL}?action=delete&rowIndex=${rowIndex}`;
 
-        try {
-            const response = await fetch(urlDelete, { method: 'GET' });
-            const data = await response.json();
+    try {
+        const response = await fetch(urlDelete, { method: 'GET' });
+        const data = await response.json();
 
-            if (data.status === 'ok') {
-                // 🔥 CAMBIO EN EL MENSAJE DE ÉXITO
-                alert(`✅ Pedido con FACTURA ${numeroFactura} eliminado con éxito.`);
-                // Recarga los pedidos para actualizar la lista
-                // 🆕 Si se elimina un pedido que estaba abierto, lo quitamos del set
-                facturasAbiertas.delete(numeroFactura.replace(/\\'/g, "'")); // Quitar el escape antes de comparar
-                cargarPedidos(false); 
-            } else {
-                throw new Error(data.message || 'Error desconocido al eliminar.');
+        if (data.status === 'ok') {
+            // 1. Animación y remoción silenciosa (sin alertas de éxito)
+            if (elementoPedido) {
+                elementoPedido.style.transition = "all 0.5s ease";
+                elementoPedido.style.opacity = "0";
+                elementoPedido.style.transform = "translateX(20px)";
+                
+                setTimeout(() => {
+                    elementoPedido.remove();
+                    
+                    // Actualizamos la memoria local
+                    pedidosGlobal = pedidosGlobal.filter(p => p.rowIndex !== rowIndex);
+                    
+                    if (document.querySelectorAll('.pedido').length === 0) {
+                        contenedor.innerHTML = "<div class='cargando'>No hay registros.</div>";
+                    }
+                }, 500);
             }
 
-        } catch (error) {
-            console.error("Error al eliminar el pedido:", error);
-            // 🔥 CAMBIO EN EL MENSAJE DE ERROR
-            alert(`❌ Error al eliminar el pedido con FACTURA ${numeroFactura}. Verifique la API y la consola.`);
-            finalBtn.disabled = false;
-            finalBtn.textContent = originalText;
+            // Limpieza de estados internos
+            ultimasFacturas.delete(numeroFactura.replace(/\\'/g, "'"));
+            facturasAbiertas.delete(numeroFactura.replace(/\\'/g, "'"));
+            
+        } else {
+            throw new Error(data.message || 'Error desconocido');
         }
+
+    } catch (error) {
+        console.error("Error al eliminar:", error);
+        // Mantenemos esta alerta por seguridad técnica si el servidor falla
+        alert(`❌ Error técnico: No se pudo eliminar la factura ${numeroFactura} en la base de datos.`);
+        btn.disabled = false;
+        btn.textContent = originalText;
     }
+}
 
     function filtrarPedidos() {
       const texto = document.getElementById("buscar").value.toLowerCase();
@@ -801,6 +812,36 @@ function mostrarPedidos(pedidos, nuevasFacturas = []) {
       }, 3000);
     }
 
+avisoPedidosNuevos.onclick = function() {
+    this.style.display = 'none';
+    this.classList.remove('active-pulse');
+    
+    // Sincronizamos las facturas conocidas
+    const facturasActuales = pedidosGlobal.map(p => p.numeroFactura).filter(f => f);
+    ultimasFacturas = new Set(facturasActuales);
+    
+    // Renderizamos resaltando los pedidos nuevos detectados
+    guardarEstadoPedidosAbiertos();
+    mostrarPedidos(pedidosGlobal, facturasNuevasTemporales); 
+    
+    // Limpiamos estados
+    facturasNuevasTemporales = [];
+    cantidadNuevosAnterior = 0;
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+
+// --- NUEVO: Búsqueda en tiempo real ---
+document.getElementById("buscar").addEventListener("input", function() {
+    filtrarPedidos();
+});
+
+// También para la fecha, para que al cambiarla filtre de una vez
+document.getElementById("fechaFiltro").addEventListener("change", function() {
+    filtrarPedidos();
+});
+
 
 fetch("../config.json")
       .then(r => r.json())
@@ -810,10 +851,10 @@ fetch("../config.json")
         // 1. Carga inicial de pedidos
         cargarPedidos(); 
         
-        // 2. ⏳ Auto-actualización cada 60 segundos
+        // 2. ⏳ Auto-actualización cada 3 segundos
         // Se llama a cargarPedidos(true) para indicar que es una llamada automática
         // y se usará la lógica de detección y aviso.
-        setInterval(() => cargarPedidos(true), 6000); // 60000 ms = 1 minuto
+        setInterval(() => cargarPedidos(true), 3000); // 3000 ms = 3 segundos
 
       })
       .catch(err => {
