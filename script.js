@@ -71,17 +71,22 @@ async function setupCategoryAndSearchFilters() {
     });
 
     // 2. Añadir Listeners de Eventos
-    categorySelect.addEventListener("change", filterProducts);
-    productSearchInput.addEventListener("input", filterProducts);
+    categorySelect.addEventListener("change", () => {
+        filterProducts(true); // true indica que es un cambio del usuario
+    });
+    productSearchInput.addEventListener("input", () => {
+        filterProducts(true); // true indica que es un cambio del usuario
+    });
     
     // 3. 💥 ¡CRUCIAL! Ejecutar el filtrado para el renderizado inicial de TODOS los productos.
-    filterProducts(); 
+    filterProducts(false); // false indica que es la carga inicial
 }
 /**
  * 🔍 Función principal para filtrar y mostrar los productos.
  * Filtra por categoría seleccionada y/o por término de búsqueda.
+ * @param {boolean} userInteraction - true si el usuario cambió los filtros, false si es carga inicial
  */
-function filterProducts() {
+function filterProducts(userInteraction = false) {
     const selectedCategory = categorySelect.value;
     const searchTerm = productSearchInput.value.toLowerCase().trim();
 
@@ -103,7 +108,14 @@ function filterProducts() {
 
     // 3. Renderizar los productos filtrados
     // DEBES tener una función 'renderProducts' definida en otra parte de tu script.
-    renderProducts(filteredProducts); 
+    renderProducts(filteredProducts);
+    
+    // 4. 📜 Scroll automático SOLO cuando el usuario filtra (no en carga inicial)
+    if (userInteraction) {
+        setTimeout(() => {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        }, 100);
+    }
 }
 
 

@@ -422,7 +422,7 @@ select {
     -webkit-appearance: none;
     
     /* Icono de flecha SVG y posición */
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z" fill="%23FFC400"/></svg>'); 
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M7 10l5 5 5-5z" fill="%2"/></svg>'); 
     background-repeat: no-repeat;
     background-position: right 18px center; 
     padding-right: 45px; /* Espacio para el icono */
@@ -436,7 +436,8 @@ select {
 
 /* Estilo específico para el placeholder (compatible con CSS puro) */
 #product-search::placeholder {
-    color: rgba(255, 255, 255, 0.5); 
+    color: var(--text);
+    opacity: 0.7; 
 }
 
 /* ================================================================= */
@@ -596,7 +597,7 @@ select {
 #main-products-grid {
     display: grid;
     /* Layout responsive: 1 columna en móvil, 2 o más en escritorio */
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 20px;
     padding: 20px;
     margin: 0 auto;
@@ -678,9 +679,9 @@ select {
 }
 
 .product-price {
-    font-size: 1.1rem;
+    font-size: 15px;
     font-weight: 600;
-    color: #ffc400;
+    color: #fff;
 }
 
 .product-description {
@@ -2051,10 +2052,21 @@ select {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 5px;
     padding: 10px 10px 10px 10px;
     background: linear-gradient(180deg, rgba(0, 0, 0, 0.6) 30%, rgba(0, 0, 0, 0) 100%);
     color: white;
+}
+
+/* Agrupa los dos inputs para poder centrar el botón atrás entre ellos */
+.inputs-group {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 /* 🔙 Botón de ir atrás (dentro del overlay) */
@@ -2074,20 +2086,62 @@ select {
 
 
 .btn-back img {
-    width: 14px;
-    height: auto;
+    width: 20px;
+    height: 20px;
+    filter: invert(0.6);
+}
+
+/* Posicionamos el botón absolutamente dentro de .inputs-group para centrarlo
+   verticalmente entre los dos inputs */
+.inputs-left {
+    flex: 0 0 56px; /* ancho fijo para el botón */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inputs-left .btn-back {
+    position: relative;
+    padding: 28px 10px;
+    backdrop-filter: blur(8px);
+    background: #fff8;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inputs-right {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.inputs-right .input-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.inputs-right .input-container input {
+    width: 100%;
+    padding: 10px 40px 10px 12px;
 }
 
 /* 🧹 Inputs */
 .input-container {
     position: relative;
     width: 90%;
-    max-width: 500px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .input-container input {
-    width: 100%;
-    padding: 10px 35px 10px 12px;
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 10px 40px 10px 12px;
     border-radius: 25px;
     border: none;
     outline: none;

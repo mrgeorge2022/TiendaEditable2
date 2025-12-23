@@ -123,12 +123,16 @@ function crearIconoTienda() {
   });
 }
 
-const usuarioIcon = L.icon({
-  iconUrl: "iconos/pinubicacion.png",
-  iconSize: [45, 45],
-  iconAnchor: [22.5, 45],
-  popupAnchor: [0, -45],
-});
+// Crear el ícono del usuario SOLO si Leaflet está cargado; en otras páginas evitamos errores
+let usuarioIcon = null;
+if (typeof L !== "undefined") {
+  usuarioIcon = L.icon({
+    iconUrl: "iconos/pinubicacion.png",
+    iconSize: [45, 45],
+    iconAnchor: [22.5, 45],
+    popupAnchor: [0, -45],
+  });
+}
 
 // ================================
 // 🏙️ LISTA COMPLETA DE BARRIOS PREDEFINIDOS
@@ -330,27 +334,31 @@ function initMap() {
 // ================================
 async function mostrarMarcadorUsuario(lat, lng) {
   markerUsuario.setLatLng([lat, lng]);
+  markerUsuario.bindPopup("<b>📍 Tu ubicación</b>");
   if (!map.hasLayer(markerUsuario)) markerUsuario.addTo(map);
 }
 
 // ================================
 // 📍 Botón: Ubicación actual
 // ================================
-document.getElementById("btn-ubicacion").addEventListener("click", () => {
-  if (!navigator.geolocation)
-    return alert("Tu navegador no soporta geolocalización.");
+const _btnUbicacion = document.getElementById("btn-ubicacion");
+if (_btnUbicacion) {
+  _btnUbicacion.addEventListener("click", () => {
+    if (!navigator.geolocation)
+      return alert("Tu navegador no soporta geolocalización.");
 
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const { latitude, longitude } = pos.coords;
-      map.setView([latitude, longitude], 15);
-      await mostrarMarcadorUsuario(latitude, longitude);
-      await detectarDireccion(latitude, longitude);
-      calcularRutaYCostos([latitude, longitude]);
-    },
-    () => alert("No se pudo obtener la ubicación actual.")
-  );
-});
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        if (typeof map !== 'undefined') map.setView([latitude, longitude], 15);
+        await mostrarMarcadorUsuario(latitude, longitude);
+        await detectarDireccion(latitude, longitude);
+        calcularRutaYCostos([latitude, longitude]);
+      },
+      () => alert("No se pudo obtener la ubicación actual.")
+    );
+  });
+}
 
 // ================================
 // 🔍 BUSCADOR COMBINADO (Barrios + Nominatim)
@@ -358,94 +366,96 @@ document.getElementById("btn-ubicacion").addEventListener("click", () => {
 const searchInput = document.getElementById("buscar");
 const suggestionsEl = document.getElementById("suggestions");
 
-searchInput.addEventListener("input", async () => {
-  const query = searchInput.value.trim();
-  suggestionsEl.innerHTML = "";
+if (searchInput && suggestionsEl) {
+  searchInput.addEventListener("input", async () => {
+    const query = searchInput.value.trim();
+    suggestionsEl.innerHTML = "";
 
-  if (!query) {
-    suggestionsEl.style.display = "none";
-    return;
-  }
-
-  let resultados = 0;
-
-  // 📍 1. Si el usuario escribió coordenadas (con o sin paréntesis)
-  const coordRegex = /^\(?\s*-?\d{1,2}\.\d+\s*,\s*-?\d{1,3}\.\d+\s*\)?$/;
-
-  if (coordRegex.test(query)) {
-    // 🧹 Limpiar los paréntesis y espacios
-    const clean = query.replace(/[()]/g, "").trim();
-    const [latStr, lonStr] = clean.split(",");
-    const lat = parseFloat(latStr);
-    const lon = parseFloat(lonStr);
-
-    const div = document.createElement("div");
-    div.textContent = `📍 Coordenadas: ${lat.toFixed(6)}, ${lon.toFixed(6)}`;
-    div.addEventListener("click", async () => {
-      searchInput.value = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+    if (!query) {
       suggestionsEl.style.display = "none";
-      map.setView([lat, lon], 15);
-      await mostrarMarcadorUsuario(lat, lon);
-      detectarDireccion(lat, lon);
-      calcularRutaYCostos([lat, lon]);
-    });
-    suggestionsEl.appendChild(div);
-    resultados++;
-  }
+      return;
+    }
 
-  // 🏘️ Buscar coincidencias en los barrios
-  const locales = barrios.filter((b) => b.nombre.includes(query));
-  locales.forEach((b) => {
-    const div = document.createElement("div");
-    div.textContent = `📍 ${b.nombre}`;
-    div.addEventListener("click", async () => {
-      searchInput.value = b.nombre;
-      suggestionsEl.style.display = "none";
-      map.setView([b.lat, b.lon], 15);
-      await mostrarMarcadorUsuario(b.lat, b.lon);
-      detectarDireccion(b.lat, b.lon);
-      calcularRutaYCostos([b.lat, b.lon]);
+    let resultados = 0;
+
+    // 📍 1. Si el usuario escribió coordenadas (con o sin paréntesis)
+    const coordRegex = /^\(?\s*-?\d{1,2}\.\d+\s*,\s*-?\d{1,3}\.\d+\s*\)?$/;
+
+    if (coordRegex.test(query)) {
+      // 🧹 Limpiar los paréntesis y espacios
+      const clean = query.replace(/[()]/g, "").trim();
+      const [latStr, lonStr] = clean.split(",");
+      const lat = parseFloat(latStr);
+      const lon = parseFloat(lonStr);
+
+      const div = document.createElement("div");
+      div.textContent = `📍 Coordenadas: ${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+      div.addEventListener("click", async () => {
+        searchInput.value = `${lat.toFixed(6)}, ${lon.toFixed(6)}`;
+        suggestionsEl.style.display = "none";
+        if (typeof map !== 'undefined') map.setView([lat, lon], 15);
+        await mostrarMarcadorUsuario(lat, lon);
+        detectarDireccion(lat, lon);
+        calcularRutaYCostos([lat, lon]);
+      });
+      suggestionsEl.appendChild(div);
+      resultados++;
+    }
+
+    // 🏘️ Buscar coincidencias en los barrios
+    const locales = barrios.filter((b) => b.nombre.includes(query));
+    locales.forEach((b) => {
+      const div = document.createElement("div");
+      div.textContent = `📍 ${b.nombre}`;
+      div.addEventListener("click", async () => {
+        searchInput.value = b.nombre;
+        suggestionsEl.style.display = "none";
+        if (typeof map !== 'undefined') map.setView([b.lat, b.lon], 15);
+        await mostrarMarcadorUsuario(b.lat, b.lon);
+        detectarDireccion(b.lat, b.lon);
+        calcularRutaYCostos([b.lat, b.lon]);
+      });
+      suggestionsEl.appendChild(div);
+      resultados++;
     });
-    suggestionsEl.appendChild(div);
-    resultados++;
+
+    // 🌍 Buscar con Nominatim
+    if (query.length > 3) {
+      try {
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            query + ", Cartagena"
+          )}`
+        );
+        const data = await res.json();
+        data.slice(0, 4).forEach((place) => {
+          const div = document.createElement("div");
+          div.textContent = `📍 ${place.display_name}`;
+          div.addEventListener("click", async () => {
+            const lat = parseFloat(place.lat);
+            const lon = parseFloat(place.lon);
+            searchInput.value = place.display_name;
+            suggestionsEl.style.display = "none";
+            if (typeof map !== 'undefined') map.setView([lat, lon], 15);
+            await mostrarMarcadorUsuario(lat, lon);
+            detectarDireccion(lat, lon);
+            calcularRutaYCostos([lat, lon]);
+          });
+          suggestionsEl.appendChild(div);
+          resultados++;
+        });
+      } catch (error) {
+        console.warn("🌐 Error con Nominatim:", error);
+      }
+    }
+
+    suggestionsEl.style.display = resultados > 0 ? "block" : "none";
   });
 
-  // 🌍 Buscar con Nominatim
-  if (query.length > 3) {
-    try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          query + ", Cartagena"
-        )}`
-      );
-      const data = await res.json();
-      data.slice(0, 4).forEach((place) => {
-        const div = document.createElement("div");
-        div.textContent = `📍 ${place.display_name}`;
-        div.addEventListener("click", async () => {
-          const lat = parseFloat(place.lat);
-          const lon = parseFloat(place.lon);
-          searchInput.value = place.display_name;
-          suggestionsEl.style.display = "none";
-          map.setView([lat, lon], 15);
-          await mostrarMarcadorUsuario(lat, lon);
-          detectarDireccion(lat, lon);
-          calcularRutaYCostos([lat, lon]);
-        });
-        suggestionsEl.appendChild(div);
-        resultados++;
-      });
-    } catch (error) {
-      console.warn("🌐 Error con Nominatim:", error);
-    }
-  }
-
-  suggestionsEl.style.display = resultados > 0 ? "block" : "none";
-});
-
-document.addEventListener("click", (e) => {
-  if (!e.target.closest(".overlay")) suggestionsEl.style.display = "none";
-});
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".overlay")) suggestionsEl.style.display = "none";
+  });
+}
 
 // ================================
 // 🧠 DETECTAR DIRECCIÓN REAL
@@ -557,17 +567,18 @@ function actualizarCostos(recargoTexto = "", hora = new Date().getHours()) {
 
   const formatoPesos = (valor) =>
     valor.toLocaleString("es-CO", { minimumFractionDigits: 0 });
+  // Actualizar solo si los elementos existen (evita errores en otras páginas)
+  const subtotalEl = document.getElementById("subtotal");
+  const domicilioEl = document.getElementById("domicilio-cost");
+  const totalEl = document.getElementById("total");
+  const recargoEl = document.getElementById("recargo-nocturno");
 
-  document.getElementById("subtotal").textContent = `$${formatoPesos(
-    subtotal
-  )}`;
-  document.getElementById("domicilio-cost").textContent = `$${formatoPesos(
-    costoDomicilio
-  )}${recargoTexto}`;
-  document.getElementById("total").textContent = `$${formatoPesos(total)}`;
+  if (subtotalEl) subtotalEl.textContent = `$${formatoPesos(subtotal)}`;
+  if (domicilioEl)
+    domicilioEl.textContent = `$${formatoPesos(costoDomicilio)}${recargoTexto}`;
+  if (totalEl) totalEl.textContent = `$${formatoPesos(total)}`;
 
-  document.getElementById("recargo-nocturno").style.display =
-    hora >= 22 || hora < 6 ? "block" : "none";
+  if (recargoEl) recargoEl.style.display = hora >= 22 || hora < 6 ? "block" : "none";
 }
 
 // ================================
@@ -757,12 +768,34 @@ function mostrarAlertaInicial() {
 // 🗺️ Inicialización (CÓDIGO CORREGIDO)
 // ================================
 window.addEventListener("DOMContentLoaded", async () => {
+  // Cargar configuración y actualizar costos siempre (no dependen de Leaflet)
   await cargarConfig(); // primero carga el JSON
-  initMap(); // luego inicializa el mapa
-  actualizarCostos(); // finalmente actualiza los costos
-  
-  // 🎯 ¡Llamada agregada! Esto inicia el temporizador de 3 segundos.
-  mostrarAlertaInicial(); 
+  actualizarCostos(); // actualizar UI aunque no haya mapa
+  // 🎯 Mostrar alerta inicial si existe
+  mostrarAlertaInicial();
+
+  // Si no existe el contenedor del mapa o Leaflet no está cargado, salimos.
+  const mapEl = document.getElementById('map');
+  if (!mapEl || typeof L === 'undefined') {
+    return;
+  }
+
+  // Inicialización del mapa solo en la página de domicilio
+  initMap();
+
+  // 📍 Ubicar automáticamente al usuario
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        if (typeof map !== 'undefined') map.setView([latitude, longitude], 15);
+        await mostrarMarcadorUsuario(latitude, longitude);
+        await detectarDireccion(latitude, longitude);
+        calcularRutaYCostos([latitude, longitude]);
+      },
+      () => console.log("Geolocalización denegada o no disponible")
+    );
+  }
 });
 
 //boton de localicacion automatica en una posicion buena
@@ -770,20 +803,22 @@ window.addEventListener("DOMContentLoaded", async () => {
 const panel = document.getElementById("panel-totales");
 const btnLocate = document.getElementById("btn-ubicacion");
 
-function posicionarBoton() {
-  // Altura total del panel
-  const alturaPanel = panel.offsetHeight;
+if (panel && btnLocate) {
+  function posicionarBoton() {
+    // Altura total del panel
+    const alturaPanel = panel.offsetHeight;
 
-  // Posicionamos el botón justo encima del panel
-  btnLocate.style.bottom = `${alturaPanel + 20}px`; // +10px para separarlo un poco
+    // Posicionamos el botón justo encima del panel
+    btnLocate.style.bottom = `${alturaPanel + 20}px`; // +10px para separarlo un poco
+  }
+
+  // Inicial
+  posicionarBoton();
+
+  // Actualiza la posición si cambia el tamaño del panel
+  const observer = new MutationObserver(posicionarBoton);
+  observer.observe(panel, { childList: true, subtree: true, attributes: true });
+
+  // También al redimensionar la ventana
+  window.addEventListener("resize", posicionarBoton);
 }
-
-// Inicial
-posicionarBoton();
-
-// Actualiza la posición si cambia el tamaño del panel
-const observer = new MutationObserver(posicionarBoton);
-observer.observe(panel, { childList: true, subtree: true, attributes: true });
-
-// También al redimensionar la ventana
-window.addEventListener("resize", posicionarBoton);

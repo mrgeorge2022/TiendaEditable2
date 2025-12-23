@@ -19,22 +19,29 @@
 
   <!-- 🌫️ Controles flotantes -->
   <div class="overlay">
-    <!-- 🔙 Botón de ir atrás dentro del overlay -->
-    <button class="btn-back" onclick="window.location.href='index.html'"">
-      <img src=" iconos/back.png" alt="Atrás" />
-    </button>
+    <div class="inputs-group">
+      <!-- Columna izquierda: botón -->
+      <div class="inputs-left">
+        <button class="btn-back" onclick="window.location.href='index.html'">
+          <img src="iconos/back.png" alt="Atrás" />
+        </button>
+      </div>
 
-    <div class="input-container">
-      <input type="text" id="buscar" placeholder="🔍 Buscar dirección o barrio..." />
-      <span class="clear-btn" id="clearBuscar">✖</span>
+      <!-- Columna derecha: inputs apilados -->
+      <div class="inputs-right">
+        <div class="input-container">
+          <input type="text" id="buscar" placeholder="🔍 Buscar dirección o barrio..." />
+          <span class="clear-btn" id="clearBuscar">✖</span>
+        </div>
+
+        <div class="input-container">
+          <input type="text" id="referencia" placeholder="📍 Punto de referencia (opcional)" />
+          <span class="clear-btn" id="clearReferencia">✖</span>
+        </div>
+      </div>
     </div>
 
     <div id="suggestions" class="suggestions"></div>
-
-    <div class="input-container">
-      <input type="text" id="referencia" placeholder="📍 Punto de referencia (opcional)" />
-      <span class="clear-btn" id="clearReferencia">✖</span>
-    </div>
   </div>
 
   <!-- Panel de totales -->
