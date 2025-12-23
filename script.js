@@ -834,21 +834,38 @@ function updateCartDisplay() {
   const cartTotalModalEl = document.getElementById("cart-total-modal");
 
   if (totalItems > 0) {
-    // ✅ Hay productos: mostrar cantidad y total
     cartFloatEl.classList.add("show-info");
+    
+    // 1. Estado Inicial: Muestra cantidad y total
     cartCountEl.textContent = `${totalItems} producto${totalItems !== 1 ? "s" : ""}`;
     cartTotalEl.textContent = formatPrice(totalPrice);
     cartTotalModalEl.textContent = `Total: ${formatPrice(totalPrice)}`;
+
+    // 2. Lógica de animación temporal
+    // Limpiamos cualquier timer previo para evitar conflictos si el usuario sigue agregando productos
+    if (window.cartAnimationTimer) clearTimeout(window.cartAnimationTimer);
+
+    window.cartAnimationTimer = setTimeout(() => {
+      // Aplicamos una clase para iniciar la transición
+      cartFloatEl.classList.add("cart-minimized");
+      
+      // Cambiamos el texto con una pequeña demora para que coincida con la animación CSS
+      setTimeout(() => {
+        cartCountEl.innerHTML = `<span class="slide-text">Completar pedido</span>`;
+        // Opcional: puedes ocultar el precio total aquí si quieres que solo se vea el texto
+        // cartTotalEl.style.opacity = "0"; 
+      }, 300);
+    }, 3000); // 3 segundos de espera
+
   } else {
-    // 🟡 Carrito vacío: solo mostrar la imagen
-    cartFloatEl.classList.remove("show-info");
+    // Carrito vacío
+    cartFloatEl.classList.remove("show-info", "cart-minimized");
     cartCountEl.textContent = "";
     cartTotalEl.textContent = "";
     cartTotalModalEl.textContent = "";
   }
 
-    // 💾 Guardar el carrito actual en localStorage
-  localStorage.setItem("cart", JSON.stringify(cart))
+  localStorage.setItem("cart", JSON.stringify(cart));
 }
 
 
