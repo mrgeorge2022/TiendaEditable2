@@ -389,7 +389,6 @@ select {
 /* 2. ESTILO DE SELECT Y BUSCADOR (COMPARTIDO - Píldora) */
 /* ================================================================= */
 
-#category-select, 
 #product-search {
     /* Diseño Base */
     background-color: var(--card-bg, #222);
@@ -404,7 +403,24 @@ select {
     
     /* Transiciones para suavizar el cambio de estado */
     transition: box-shadow 0.2s ease-in-out, background-color 0.2s;
-    outline: none; 
+    outline: none;
+}
+
+#category-select{    /* Diseño Base */
+    background-color: var(--card-bg, #222);
+    color: var(--text, #fff); /* Usamos var(--text) por si el tema define otro color */
+    padding: 12px 18px; 
+    border-radius: 25px; 
+    font-size: 1rem;
+    
+    /* Borde / Sombra */
+    border: none; 
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15); 
+    
+    /* Transiciones para suavizar el cambio de estado */
+    transition: box-shadow 0.2s ease-in-out, background-color 0.2s;
+    outline: none;
+    cursor: pointer; 
 }
 
 /* ================================================================= */
@@ -615,10 +631,11 @@ select {
     display: flex;
     gap: 20px;
     align-items: center;
+    cursor: pointer;
 }
 
 .product-card:hover {
-    transform: translateY(-5px);
+    transform: scale(1.02);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
 }
 

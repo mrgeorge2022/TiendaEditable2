@@ -316,7 +316,7 @@
         <input type="text" id="customer-name" placeholder="👤 Nombre completo" required>
         <input type="tel" id="customer-phone" placeholder="📞 Número de teléfono" required>
         <div id="mesa-field" style="display:none;">
-          <input type="text" id="customer-mesa" placeholder="🍽️ Número de mesa" required>
+          <input type="text" id="customer-mesa" placeholder="🍽️ Número de mesa" inputmode="numeric" pattern="[0-9]*" required>
         </div>
 
         <!-- ⚠️ Nuevo texto de aviso -->
@@ -392,5 +392,6 @@
 
 
 </body>
+
 
 </html>

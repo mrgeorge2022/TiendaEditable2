@@ -589,88 +589,85 @@
         }
       }
 
-      function mostrarPedidos(pedidos, nuevasFacturas = []) {
-        const mesesNombres = [
-          "Enero",
-          "Febrero",
-          "Marzo",
-          "Abril",
-          "Mayo",
-          "Junio",
-          "Julio",
-          "Agosto",
-          "Septiembre",
-          "Octubre",
-          "Noviembre",
-          "Diciembre",
-        ];
-        const pedidosPorMes = {};
+function mostrarPedidos(pedidos, nuevasFacturas = [], esBusquedaTexto = false) {
+  const mesesNombres = [
+    "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio",
+    "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre",
+  ];
 
-        pedidos.forEach((p) => {
-          if (!p.fecha) return;
-          const partes = p.fecha.split("/");
-          if (partes.length !== 3) return;
-          const mes = partes[1].padStart(2, "0");
-          if (!pedidosPorMes[mes]) pedidosPorMes[mes] = [];
-          pedidosPorMes[mes].push(p);
-        });
+  // Agrupador por Año y Mes para evitar mezcla de años
+  const pedidosPorMesAnio = {};
 
-        // === LÓGICA ROBUSTA PARA MOSTRAR "NO HAY REGISTROS" ===
-        if (pedidos.length === 0 || Object.keys(pedidosPorMes).length === 0) {
-          contenedor.innerHTML =
-            "<div class='cargando'>No hay registros.</div>";
-          return;
-        }
-        // =======================================================
+  // Obtener mes y año actual para el despliegue automático
+  const ahora = new Date();
+  const mesActualNum = (ahora.getMonth() + 1).toString().padStart(2, "0");
+  const anioActualNum = ahora.getFullYear().toString();
+  const llaveActual = `${anioActualNum}-${mesActualNum}`;
 
-        contenedor.innerHTML = "";
+  pedidos.forEach((p) => {
+    if (!p.fecha) return;
+    const partes = p.fecha.split("/");
+    if (partes.length !== 3) return;
 
-        // Lista para guardar las referencias de los nuevos elementos header para el timeout
-        const nuevosElementosHeader = [];
+    const mes = partes[1].padStart(2, "0");
+    const anio = partes[2];
+    const llave = `${anio}-${mes}`; // Ejemplo: "2026-01"
 
-        Object.keys(pedidosPorMes)
-          .sort((a, b) => b - a)
-          .forEach((mes) => {
-            const headerMes = document.createElement("div");
-            headerMes.className = "mes-header";
-            // Muestra el nombre del mes y el año (si está disponible y es distinto al actual)
-            const anio =
-              pedidosPorMes[mes][0].fecha.split("/")[2] ||
-              new Date().getFullYear();
-            headerMes.innerHTML = `${mesesNombres[Number(mes) - 1]} ${
-              anio !== new Date().getFullYear().toString() ? anio : ""
-            }`;
-            contenedor.appendChild(headerMes);
+    if (!pedidosPorMesAnio[llave]) pedidosPorMesAnio[llave] = [];
+    pedidosPorMesAnio[llave].push(p);
+  });
 
-            const bloqueMes = document.createElement("div");
-            bloqueMes.className = "pedidos-mes";
+  // === LÓGICA ROBUSTA PARA MOSTRAR "NO HAY REGISTROS" ===
+  if (pedidos.length === 0 || Object.keys(pedidosPorMesAnio).length === 0) {
+    contenedor.innerHTML = "<div class='cargando'>No hay registros.</div>";
+    return;
+  }
 
-            pedidosPorMes[mes]
-              .slice()
-              .reverse()
-              .forEach((p) => {
-                const rowIndex = p.rowIndex;
-                const numFactura = (p.numeroFactura || "SIN NÚMERO").replace(
-                  /'/g,
-                  "\\'"
-                ); // Escapar comillas para JS
+  contenedor.innerHTML = "";
+  const nuevosElementosHeader = [];
 
-                // 🆕 Determinar si es un pedido nuevo (para la animación)
-                const esNuevo = nuevasFacturas.includes(p.numeroFactura);
-                // 🆕 Determinar si debe estar abierto (para restaurar el estado)
-                const debeEstarActivo = facturasAbiertas.has(p.numeroFactura);
+  // Ordenamos las llaves (Año-Mes) de mayor a menor
+  Object.keys(pedidosPorMesAnio)
+    .sort((a, b) => b.localeCompare(a))
+    .forEach((llave) => {
+      const [anio, mes] = llave.split("-");
+      
+      // LÓGICA DE APERTURA: 
+      // Se muestra abierto si es el mes actual O si el usuario está buscando texto (nombre/factura)
+      const debeEstarAbierto = (llave === llaveActual) || esBusquedaTexto;
 
-                const div = document.createElement("div");
-                // 🆕 Añadir clase 'activo' si debe estar abierto
-                div.className = `pedido ${debeEstarActivo ? "activo" : ""}`;
+      const headerMes = document.createElement("div");
+      headerMes.className = "mes-header";
 
-                div.innerHTML = `
+      // Muestra el año solo si NO es el año actual
+      const textoAnio = anio !== anioActualNum ? ` ${anio}` : "";
+      headerMes.innerHTML = `${mesesNombres[Number(mes) - 1]}${textoAnio} <span>${pedidosPorMesAnio[llave].length} pedidos</span>`;
+      contenedor.appendChild(headerMes);
+
+      const bloqueMes = document.createElement("div");
+      bloqueMes.className = "pedidos-mes";
+
+      if (!debeEstarAbierto) {
+        bloqueMes.classList.add("oculto");
+      }
+
+      pedidosPorMesAnio[llave]
+        .slice()
+        .reverse()
+        .forEach((p) => {
+          const rowIndex = p.rowIndex;
+          const numFactura = (p.numeroFactura || "SIN NÚMERO").replace(/'/g, "\\'");
+          const esNuevo = nuevasFacturas.includes(p.numeroFactura);
+          const debeEstarActivo = facturasAbiertas.has(p.numeroFactura);
+
+          const div = document.createElement("div");
+          div.className = `pedido ${debeEstarActivo ? "activo" : ""}`;
+
+          div.innerHTML = `
           <div class="pedido-header ${esNuevo ? "new" : ""}">
             <div class="pedido-info">
               <div class="pedido-linea">
-                <span class="pedido-nombre">${
-                  p.nombre || "Cliente sin nombre"
-                }</span>
+                <span class="pedido-nombre">${p.nombre || "Cliente sin nombre"}</span>
                 <span class="pedido-tipo-entrega">${p.tipoEntrega || "—"}</span>
               </div>
               <div class="pedido-linea">
@@ -685,147 +682,84 @@
             <p><strong>Tipo Entrega:</strong> ${p.tipoEntrega || "—"}</p>
             <p><strong>Teléfono:</strong> ${p.telefono ?? "0"}</p>
             ${p.mesa ? `<p><strong>Mesa:</strong> ${p.mesa}</p>` : ""}
-            ${
-              p.direccion
-                ? `<p><strong>Dirección:</strong> ${p.direccion}</p>`
-                : ""
-            }
-            ${
-              p.puntoReferencia
-                ? `<p><strong>Punto Ref:</strong> ${p.puntoReferencia}</p>`
-                : ""
-            }
+            ${p.direccion ? `<p><strong>Dirección:</strong> ${p.direccion}</p>` : ""}
+            ${p.puntoReferencia ? `<p><strong>Punto Ref:</strong> ${p.puntoReferencia}</p>` : ""}
             <p><strong>Productos:</strong></p>
-            <div class="productos">${(p.productos || "").replace(
-              /\n/g,
-              "<br>"
-            )}</div>
-            <p><strong>Total Productos:</strong> ${formatoCOP(
-              p.totalProductos
-            )}</p>
-            <p><strong>Costo Domicilio:</strong> ${formatoCOP(
-              p.costoDomicilio
-            )}</p>
+            <div class="productos">${(p.productos || "").replace(/\n/g, "<br>")}</div>
+            <p><strong>Total Productos:</strong> ${formatoCOP(p.totalProductos)}</p>
+            <p><strong>Costo Domicilio:</strong> ${formatoCOP(p.costoDomicilio)}</p>
             <p><strong>Total a Pagar:</strong> ${formatoCOP(p.totalPagar)}</p>
             <p><strong>Método de Pago:</strong> ${p.metodoPago || "—"}</p>
-            ${
-              p.ubicacionGoogleMaps
-                ? `<p><strong>Ubicación:</strong> <a href="${p.ubicacionGoogleMaps}" target="_blank">Ver mapa</a></p>`
-                : ""
-            }
-            ${
-              p.observaciones
-                ? `<p><strong>Observaciones:</strong> ${p.observaciones}</p>`
-                : ""
-            }
+            ${p.ubicacionGoogleMaps ? `<p><strong>Ubicación:</strong> <a href="${p.ubicacionGoogleMaps}" target="_blank">Ver mapa</a></p>` : ""}
+            ${p.observaciones ? `<p><strong>Observaciones:</strong> ${p.observaciones}</p>` : ""}
             <button class="boton-factura">👁️ Ver Factura</button>
-            
-            <button class="boton-eliminar" data-row-index="${rowIndex}" onclick="eliminarPedidoAPI(${rowIndex}, '${numFactura}')">🗑️ Eliminar</button>              
+            <button class="boton-eliminar" data-row-index="${rowIndex}" onclick="eliminarPedidoAPI(${rowIndex}, '${numFactura}')">🗑️ Eliminar</button>
           </div>
         `;
 
-                // Obtener el header del DOM después de inyectar div.innerHTML
-                const header = div.querySelector(".pedido-header");
-
-                if (header) {
-                  header.addEventListener("click", () => {
-                    div.classList.toggle("activo");
-                    // 🆕 Guardar el estado al hacer click.
-                    if (div.classList.contains("activo")) {
-                      const facturaTexto = div
-                        .querySelector(".pedido-factura")
-                        .textContent.trim()
-                        .split("|")[0]
-                        .trim();
-                      facturasAbiertas.add(facturaTexto);
-                    } else {
-                      const facturaTexto = div
-                        .querySelector(".pedido-factura")
-                        .textContent.trim()
-                        .split("|")[0]
-                        .trim();
-                      facturasAbiertas.delete(facturaTexto);
-                    }
-                  });
-                  // 🆕 Guardamos la referencia para eliminar la animación
-                  if (esNuevo) {
-                    nuevosElementosHeader.push(header);
-                  }
-                }
-
-                div
-                  .querySelector(".boton-factura")
-                  .addEventListener("click", () => {
-                    let productosArray = [];
-                    if (typeof p.productos === "string") {
-                      productosArray = p.productos
-                        .split("\n")
-                        .filter((x) => x.trim() !== "")
-                        .map((linea) => {
-                          const partes = linea.split("-").map((x) => x.trim());
-                          const nombreCompleto = partes[0];
-
-                          // Extraemos el primer número que encuentre en el nombre (ej: el "2" de "Promo 2")
-                          const cantidadExtraida = nombreCompleto.match(/\d+/);
-                          const cantidadFinal = cantidadExtraida
-                            ? parseInt(cantidadExtraida[0])
-                            : 1;
-
-                          return {
-                            nombre: nombreCompleto,
-                            cantidad: cantidadFinal,
-                            precio:
-                              Number((partes[1] || "0").replace(/\D/g, "")) ||
-                              0,
-                          };
-                        });
-                    }
-                    const pedidoLocal = {
-                      tipoEntrega: p.tipoEntrega,
-                      factura: p.numeroFactura,
-                      fecha: p.fecha,
-                      hora: p.hora,
-                      cliente: {
-                        nombre: p.nombre,
-                        telefono: p.telefono ?? "0",
-                        mesa: p.mesa,
-                      },
-                      direccion: p.direccion,
-                      productos: productosArray,
-                      subtotal: Number(p.totalProductos || 0),
-                      costoDomicilio: Number(p.costoDomicilio || 0),
-                      totalPagar: Number(p.totalPagar || 0),
-                      metodoPago: p.metodoPago,
-                      observaciones: p.observaciones,
-                      ubicacion: p.ubicacionGoogleMaps || "",
-                    };
-                    localStorage.setItem(
-                      "lastPedido",
-                      JSON.stringify(pedidoLocal)
-                    );
-                    window.open("facturalocal.html", "_blank");
-                  });
-                bloqueMes.appendChild(div);
-              });
-            contenedor.appendChild(bloqueMes);
-
-            // Toggle para ocultar/mostrar los pedidos del mes
-            headerMes.addEventListener("click", () =>
-              bloqueMes.classList.toggle("oculto")
-            );
-          });
-
-        // =====================================================
-        // 💡 LÓGICA FINAL PARA REMOVER LA ANIMACIÓN DESPUÉS DE 10s
-        // =====================================================
-        if (nuevosElementosHeader.length > 0) {
-          setTimeout(() => {
-            nuevosElementosHeader.forEach((header) => {
-              header.classList.remove("new");
+          const header = div.querySelector(".pedido-header");
+          if (header) {
+            header.addEventListener("click", () => {
+              div.classList.toggle("activo");
+              const facturaTexto = div.querySelector(".pedido-factura").textContent.trim().split("|")[0].trim();
+              if (div.classList.contains("activo")) {
+                facturasAbiertas.add(facturaTexto);
+              } else {
+                facturasAbiertas.delete(facturaTexto);
+              }
             });
-          }, 10000); // ⬅️ 10 segundos
-        }
-      }
+            if (esNuevo) {
+              nuevosElementosHeader.push(header);
+            }
+          }
+
+          div.querySelector(".boton-factura").addEventListener("click", () => {
+            let productosArray = [];
+            if (typeof p.productos === "string") {
+              productosArray = p.productos.split("\n").filter((x) => x.trim() !== "").map((linea) => {
+                const ultimoGuionIndex = linea.lastIndexOf("-");
+                const parteIzquierda = linea.substring(0, ultimoGuionIndex).trim();
+                const partePrecio = linea.substring(ultimoGuionIndex + 1).trim();
+                const matchCantidad = parteIzquierda.match(/\s+x(\d+)$/i);
+                let nombreFinal = parteIzquierda;
+                let cantidadFinal = 1;
+                if (matchCantidad) {
+                  cantidadFinal = parseInt(matchCantidad[1]);
+                  nombreFinal = parteIzquierda.substring(0, matchCantidad.index).trim();
+                }
+                return {
+                  nombre: nombreFinal,
+                  cantidad: cantidadFinal,
+                  precio: Number(partePrecio.replace(/\D/g, "")) || 0,
+                };
+              });
+            }
+            const pedidoLocal = {
+              tipoEntrega: p.tipoEntrega, factura: p.numeroFactura, fecha: p.fecha, hora: p.hora,
+              cliente: { nombre: p.nombre, telefono: p.telefono ?? "0", mesa: p.mesa },
+              direccion: p.direccion, productos: productosArray,
+              subtotal: Number(p.totalProductos || 0), costoDomicilio: Number(p.costoDomicilio || 0),
+              totalPagar: Number(p.totalPagar || 0), metodoPago: p.metodoPago,
+              observaciones: p.observaciones, ubicacion: p.ubicacionGoogleMaps || "",
+            };
+            localStorage.setItem("lastPedido", JSON.stringify(pedidoLocal));
+            window.open("facturalocal.html", "_blank");
+          });
+          bloqueMes.appendChild(div);
+        });
+      contenedor.appendChild(bloqueMes);
+
+      headerMes.addEventListener("click", () => bloqueMes.classList.toggle("oculto"));
+    });
+
+  if (nuevosElementosHeader.length > 0) {
+    setTimeout(() => {
+      nuevosElementosHeader.forEach((header) => {
+        header.classList.remove("new");
+      });
+    }, 10000);
+  }
+}
 
       async function eliminarPedidoAPI(rowIndex, numeroFactura) {
         if (rowIndex <= 1) {
@@ -895,38 +829,36 @@
         }
       }
 
-      function filtrarPedidos() {
-        const texto = document.getElementById("buscar").value.toLowerCase();
-        const fechaFiltro = document.getElementById("fechaFiltro").value;
-        // 🆕 Guardar el estado de los pedidos abiertos antes de filtrar
-        guardarEstadoPedidosAbiertos();
+function filtrarPedidos() {
+    const texto = document.getElementById("buscar").value.toLowerCase();
+    const fechaFiltro = document.getElementById("fechaFiltro").value;
+    
+    guardarEstadoPedidosAbiertos();
 
-        const filtrados = pedidosGlobal.filter((p) => {
-          const coincideTexto =
+    const filtrados = pedidosGlobal.filter((p) => {
+        const coincideTexto =
             (p.nombre || "").toLowerCase().includes(texto) ||
             (p.numeroFactura || "").toLowerCase().includes(texto);
 
-          let coincideFecha = true;
-          if (fechaFiltro && p.fecha) {
+        let coincideFecha = true;
+        if (fechaFiltro && p.fecha) {
             const partes = p.fecha.split("/");
             if (partes.length === 3) {
-              const fechaPedido = `${partes[2]}-${partes[1].padStart(
-                2,
-                "0"
-              )}-${partes[0].padStart(2, "0")}`;
-              coincideFecha = fechaPedido === fechaFiltro;
+                const fechaPedido = `${partes[2]}-${partes[1].padStart(2, "0")}-${partes[0].padStart(2, "0")}`;
+                coincideFecha = fechaPedido === fechaFiltro;
             } else {
-              coincideFecha = false;
+                coincideFecha = false;
             }
-          }
+        }
+        return coincideTexto && coincideFecha;
+    });
 
-          return coincideTexto && coincideFecha;
-        });
+    // ⚡ NUEVA LÓGICA: Si el usuario está filtrando (por texto O por fecha), 
+    // forzamos a que los meses se abran para mostrar los resultados.
+    const forzarApertura = texto.length > 0 || fechaFiltro !== "";
 
-        // Se elimina la verificación explícita de filtrados.length y se delega a mostrarPedidos
-        mostrarPedidos(filtrados);
-      }
-
+    mostrarPedidos(filtrados, [], forzarApertura);
+}
       document
         .getElementById("filtrarBtn")
         .addEventListener("click", filtrarPedidos);
