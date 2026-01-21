@@ -205,11 +205,16 @@
     }
 
     /* ==== OBSERVACIONES Y FOOTER ==== */
-    .observaciones {
-      margin-top: 8px;
-      font-size: 10px;
-      font-weight: 700;
-    }
+        .observaciones {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-size: 10px;
+            font-weight: 700;
+        }
     
     /* Centrado de observaciones para POS */
     .observaciones {
@@ -326,6 +331,11 @@
 
 <body>
   <div class="page" id="page">
+
+        <div class="logo-container" style="text-align: center; width: 100%; margin-top: 5px;margin-bottom: 10px;">
+            <img src="../img/logoimpresora.png" alt="Logo" class="thermal-logo" style=" width: 100%; max-width: 52mm; height: auto; display: block; margin: 0 auto; mage-rendering: crisp-edges;">
+        </div>
+
     <header class="header-column">
       <div class="logo">
         <img id="store-logo" src="../img/icono_tienda.png" alt="Logo del Negocio">
@@ -349,6 +359,7 @@
         <span id="cliente-nombre">Cliente: ---</span><br>
         <span id="cliente-phone">Tel: ---</span><br>
         <span id="cliente-direccion">Dirección: ---</span><br>
+        <span id="cliente-referencia">Ref: ---</span>
         <div id="fecha">Fecha: --</div>
         <div id="hora">Hora: --</div>
         <div id="tipo-entrega">Tipo: --</div>
@@ -453,8 +464,12 @@
         return;
       }
 
-      let pedido;
-      try { pedido = JSON.parse(raw); } catch (e) { return; }
+      
+
+let pedido;
+      try { 
+        pedido = JSON.parse(raw); 
+      } catch (e) { return; }
 
       const formato = n => '$' + Number(n || 0).toLocaleString('es-CO');
 
@@ -462,6 +477,21 @@
       document.getElementById('cliente-nombre').textContent = `Cliente: ${pedido.cliente?.nombre || ''}`;
       document.getElementById('cliente-phone').textContent = `Tel: ${pedido.cliente?.telefono || ''}`;
       document.getElementById('cliente-direccion').textContent = `Dirección: ${pedido.direccion || ''}`;
+
+      // --- Lógica para insertar la referencia ---
+      // Buscamos el ID que dejaste en el HTML
+      const refEl = document.getElementById('cliente-referencia');
+      if (refEl) {
+        // Probamos todas las rutas posibles según tus scripts anteriores
+        const valorRef = pedido.referencia || pedido.cliente?.referencia || pedido.puntoReferencia;
+        
+        if (valorRef && valorRef.trim() !== "") {
+            refEl.textContent = `Ref: ${valorRef}`;
+            refEl.style.display = 'inline'; // Se muestra si hay dato
+        } else {
+            refEl.style.display = 'none';   // Se oculta si no hay dato
+        }
+      }
       document.getElementById('fecha').textContent = `Fecha: ${pedido.fecha || ''}`;
       document.getElementById('hora').textContent = `Hora: ${pedido.hora || ''}`;
       document.getElementById('tipo-entrega').textContent = `Tipo: ${pedido.tipoEntrega || ''}`;
@@ -487,15 +517,15 @@
         const nombreLimpio = (p.nombre || "").replace(/\s*x\d+\s*$/i, "");
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>
-            <strong>${nombreLimpio}</strong><br>
-            ${p.instrucciones ? `<small>${p.instrucciones}</small>` : ''}
-          </td>
-          <td class="qty">${p.cantidad || 1}</td>
-          <td class="price">${formato(p.precio)}</td>
-          <td class="total">${formato((p.precio || 0) * (p.cantidad || 1))}</td>`;
-        tbody.appendChild(tr);
-      });
+<td>
+      <strong>${nombreLimpio}</strong><br>
+      ${p.instrucciones ? `<small>${p.instrucciones}</small>` : ''}
+    </td>
+    <td class="qty">${p.cantidad || 1}</td>
+    <td class="price">${formato(p.precio)}</td>
+    <td class="total">${formato((p.precio || 0) * (p.cantidad || 1))}</td>`;
+  tbody.appendChild(tr);
+});
 
       // 🧾 Calcular totales
       const subtotal = Number(pedido.subtotal || 0);
@@ -620,4 +650,3 @@
 </body>
 
 </html>
-

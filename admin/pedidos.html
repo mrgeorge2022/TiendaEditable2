@@ -668,7 +668,7 @@ function mostrarPedidos(pedidos, nuevasFacturas = [], esBusquedaTexto = false) {
             <div class="pedido-info">
               <div class="pedido-linea">
                 <span class="pedido-nombre">${p.nombre || "Cliente sin nombre"}</span>
-                <span class="pedido-tipo-entrega">${p.tipoEntrega || "—"}</span>
+                <span class="pedido-tipo-entrega">${p.tipoEntrega || "-"}</span>
               </div>
               <div class="pedido-linea">
                 <div class="pedido-factura">
@@ -712,39 +712,65 @@ function mostrarPedidos(pedidos, nuevasFacturas = [], esBusquedaTexto = false) {
               nuevosElementosHeader.push(header);
             }
           }
+div.querySelector(".boton-factura").addEventListener("click", () => {
+    let productosArray = [];
+    if (typeof p.productos === "string") {
+        productosArray = p.productos.split("\n").filter((x) => x.trim() !== "").map((linea) => {
 
-          div.querySelector(".boton-factura").addEventListener("click", () => {
-            let productosArray = [];
-            if (typeof p.productos === "string") {
-              productosArray = p.productos.split("\n").filter((x) => x.trim() !== "").map((linea) => {
-                const ultimoGuionIndex = linea.lastIndexOf("-");
-                const parteIzquierda = linea.substring(0, ultimoGuionIndex).trim();
-                const partePrecio = linea.substring(ultimoGuionIndex + 1).trim();
-                const matchCantidad = parteIzquierda.match(/\s+x(\d+)$/i);
-                let nombreFinal = parteIzquierda;
-                let cantidadFinal = 1;
-                if (matchCantidad) {
-                  cantidadFinal = parseInt(matchCantidad[1]);
-                  nombreFinal = parteIzquierda.substring(0, matchCantidad.index).trim();
-                }
-                return {
-                  nombre: nombreFinal,
-                  cantidad: cantidadFinal,
-                  precio: Number(partePrecio.replace(/\D/g, "")) || 0,
-                };
-              });
+            // 1. Extraes el texto de adentro
+            const matchInstrucciones = linea.match(/\(([^)]+)\)/);
+            const instruccionesLimpias = matchInstrucciones ? matchInstrucciones[1] : "";
+            
+            // 2. Creas la versión SIN paréntesis para limpiar el nombre
+            let lineaSinNotas = linea.replace(/\s*\([^)]+\)/g, "").trim();
+
+            // 3. ¡IMPORTANTE! Usamos 'lineaSinNotas' aquí abajo:
+            const ultimoGuionIndex = lineaSinNotas.lastIndexOf("-"); 
+            const parteIzquierda = lineaSinNotas.substring(0, ultimoGuionIndex).trim();
+            const partePrecio = lineaSinNotas.substring(ultimoGuionIndex + 1).trim();
+
+            const matchCantidad = parteIzquierda.match(/\s+x(\d+)$/i);
+            let nombreFinal = parteIzquierda;
+            let cantidadFinal = 1;
+
+            if (matchCantidad) {
+                cantidadFinal = parseInt(matchCantidad[1]);
+                nombreFinal = parteIzquierda.substring(0, matchCantidad.index).trim();
             }
-            const pedidoLocal = {
-              tipoEntrega: p.tipoEntrega, factura: p.numeroFactura, fecha: p.fecha, hora: p.hora,
-              cliente: { nombre: p.nombre, telefono: p.telefono ?? "0", mesa: p.mesa },
-              direccion: p.direccion, productos: productosArray,
-              subtotal: Number(p.totalProductos || 0), costoDomicilio: Number(p.costoDomicilio || 0),
-              totalPagar: Number(p.totalPagar || 0), metodoPago: p.metodoPago,
-              observaciones: p.observaciones, ubicacion: p.ubicacionGoogleMaps || "",
+
+            return {
+                nombre: nombreFinal,
+                cantidad: cantidadFinal,
+                precio: Number(partePrecio.replace(/\D/g, "")) || 0,
+                instrucciones: instruccionesLimpias // Se envía el texto limpio
             };
-            localStorage.setItem("lastPedido", JSON.stringify(pedidoLocal));
-            window.open("facturalocal.html", "_blank");
-          });
+        });
+    }
+
+    const pedidoLocal = {
+        tipoEntrega: p.tipoEntrega, 
+        factura: p.numeroFactura, 
+        fecha: p.fecha, 
+        hora: p.hora,
+        cliente: { 
+            nombre: p.nombre, 
+            telefono: p.telefono ?? "0", 
+            mesa: (p.mesa && p.mesa !== "") ? p.mesa : "0", 
+            referencia: p.puntoReferencia || p.referencia || "" 
+        },
+        direccion: p.direccion, 
+        productos: productosArray,
+        subtotal: Number(p.totalProductos || 0), 
+        costoDomicilio: Number(p.costoDomicilio || 0),
+        totalPagar: Number(p.totalPagar || 0), 
+        metodoPago: p.metodoPago,
+        observaciones: p.observaciones, 
+        ubicacion: p.ubicacionGoogleMaps || "",
+    };
+
+    localStorage.setItem("lastPedido", JSON.stringify(pedidoLocal));
+    window.open("facturalocal.html", "_blank");
+});
           bloqueMes.appendChild(div);
         });
       contenedor.appendChild(bloqueMes);

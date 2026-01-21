@@ -2,9 +2,14 @@
 // ⚙️ CARGAR CONFIGURACIÓN (LOCAL O REMOTA)
 // ==========================================
 document.addEventListener("DOMContentLoaded", async () => {
-  try {
-    // 1️⃣ Cargar archivo base local
-    const response = await fetch("config.json");
+try {
+    // === 🛠️ DETECCIÓN DE RUTA INTELIGENTE ===
+    // Si la URL contiene /sistemaPOS/, necesitamos subir un nivel (../)
+    const enSubcarpeta = window.location.pathname.includes("/sistemaPOS/");
+    const rutaBase = enSubcarpeta ? "../" : "";
+
+    // 1️⃣ Cargar archivo usando la rutaBase detectada
+    const response = await fetch(`${rutaBase}config.json`); 
     if (!response.ok) throw new Error("No se pudo cargar config.json");
     const baseConfig = await response.json();
 
